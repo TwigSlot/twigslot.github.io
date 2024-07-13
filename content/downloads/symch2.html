@@ -1,0 +1,788 @@
+<style>
+    .actions-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+    .input-panel {
+        position: fixed;
+        left: 120px;
+    }
+    .toggle-textarea {
+        top: 0;
+        left: 0;
+        width: 120px;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .buffers {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
+    .buffer {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    #delimiter-textfield {
+        width: 30px;
+    }
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+
+        /* Position the tooltip */
+        position: absolute;
+        z-index: 1;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
+    .buffer-div {
+        width: 100%;
+    }
+</style>
+<script>
+    MathJax = {
+        loader: { load: ['output/svg'] }
+    };
+</script>
+<script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
+<script>
+    // create a javascript class for each equation
+    const MouseState = {
+        NONE: 0,
+        HOVER: 1,
+        SELECTED: 2,
+        DRAGGING: 3,
+    }
+    function removedAligned(code){
+        return code.replace('\\begin{aligned}', '').replace('\\end{aligned}', '');
+    }
+    focused_entity = null;
+    function decorateNode(entity,node){
+        node.style.position = 'absolute';
+        node.style.right = entity.position.right;
+        node.style.top = entity.position.top;
+        node.onmousedown = entity.onmousedown.bind(entity);
+        node.onmousemove = entity.onmousemove.bind(entity);
+        node.onmouseup = entity.onmouseup.bind(entity);
+        node.onmouseover = entity.onmouseover.bind(entity);
+        node.onmouseout = entity.onmouseout.bind(entity);
+    }
+    document.onmousedown = function (e){
+        if(e.target == document.body){
+            // unselect the focused entity
+            if(focused_entity != null){
+                document.getElementById('latex').value = '';
+                focused_entity = null;
+            }
+        }
+    }
+    function math_rerender(code, entity){
+        if(entity == null) return;
+        document.getElementById('output').removeChild(entity.node);
+        MathJax.tex2svgPromise(code).then((node) => {
+            entity.node = node.children[0];
+            decorateNode(entity, entity.node);
+            document.getElementById('output').appendChild(entity.node)
+        }).catch((err) => {
+            console.log("err")
+        })
+    }
+    function latex_onkeyup() {
+        if(document.getElementById('auto-render').checked){
+            var textarea = document.getElementById('latex');
+            var code = textarea.value;
+            code = removedAligned(code);
+            code = "\\begin{aligned}" + code + "\\end{aligned}"
+            if(focused_entity != null){
+                focused_entity.code = code;
+                math_rerender(code, focused_entity);
+            }
+        }
+    }
+    function get_selection() {
+        var textarea = document.getElementById('latex');
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var sel = textarea.value.substring(start, end);
+        return [start, end, sel];
+    }
+    function latex_onmouseup(e) {
+        // get selection
+        save_old_textarea_style();
+        var [start, end, sel] = get_selection();
+        if (sel.length == 0) {
+            return;
+        }
+        // surround with underbrace
+        var textarea = document.getElementById('latex');
+        var before = textarea.value.substring(0, start);
+        var after = textarea.value.substring(end, textarea.value.length);
+        // trim whitespaces at the back of sel
+        var i = sel.length - 1;
+        while (sel[i] == ' ') {
+            i--;
+        }
+        sel = sel.substring(0, i + 1);
+        // if the last 2 characters of sel are newlines \\
+        var hadNewline = false;
+        if (sel[sel.length - 1] == '\\' && sel[sel.length - 2] == '\\') {
+            sel = sel.substring(0, sel.length - 2);
+            hadNewline = true;
+        }
+        var underbraced = before + (sel.includes('&') ? '&' : '' ) 
+                                    + "\\underbrace{" + sel.replaceAll('&','') + "}" 
+                                    + (hadNewline ? '\\\\' : '')
+                                    + after;
+        underbraced = "\\begin{aligned}" + removedAligned(underbraced) + "\\end{aligned}"
+        math_rerender(underbraced, focused_entity);
+    }
+    class Entity {
+        constructor(code, node) {
+            this.code = code;
+            this.node = node;
+            this.position = {};
+            this.position.right = node.style.right;
+            this.position.top = node.style.top;
+            this.mouse_state = MouseState.NONE;
+        }
+        onmouseover(e) {
+            if (this.mouse_state != MouseState.DRAGGING) this.mouse_state = MouseState.HOVER;
+            this.node.style.border = '1px solid red';
+        }
+        onmousedown(e) {
+            if (e.button == 0) { // left click
+                if (this.mouse_state != MouseState.DRAGGING) this.mouse_state = MouseState.SELECTED;
+                this.node.style.border = '1px solid blue';
+            }else if (e.button == 2) { // right click
+                this.mouse_state = MouseState.NONE;
+                // select the node
+                document.getElementById('latex').value = removedAligned(this.code);
+                toggle_textarea(1);
+                this.node.style.border = '1px solid green';
+                focused_entity = this;
+                return;
+            }
+        }
+        onmouseout(e) {
+            if(focused_entity != this){
+                this.node.style.border = '1px solid white';
+            }
+        }
+        onmouseup(e) {
+            if (e.button == 0) { // left click
+                this.mouse_state = MouseState.NONE;
+            }
+            if(focused_entity != this){
+                this.node.style.border = '1px solid white';
+            }
+        }
+        onmousemove(e) {
+            if (this.mouse_state == MouseState.SELECTED) {
+                this.mouse_state = MouseState.DRAGGING;
+            }
+            if (this.mouse_state == MouseState.DRAGGING) {
+                // change in x and y
+                var dx = e.movementX;
+                var dy = e.movementY;
+                // scale
+                const scale = 0.5;
+                dx *= scale;
+                dy *= scale;
+                // move the node
+                this.position.right = parseInt(this.position.right) - dx;
+                this.position.top = parseInt(this.position.top) + dy;
+                this.node.style.right = this.position.right;
+                this.node.style.top = this.position.top;
+            }
+        }
+    }
+    var entities = [];
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    function math_render(code, location=null) { // optional location
+        MathJax.tex2svgPromise(code).then((guy) => {
+            // absolute positioning for node 
+            var node = guy.children[0];
+            node.style.position = 'absolute';
+            if(location == null){
+                node.style.top = 0;
+                node.style.right = 0;
+            }else{
+                node.style.top = location.top;
+                node.style.right = location.right;
+            }
+            const entity = new Entity(code, node);
+            decorateNode(entity,node);
+            entities.push(entity);
+            document.getElementById('output').appendChild(node)
+        }).catch((err) => {
+            console.log("err")
+        })
+    }
+    function init() {
+        document.onmouseup = function (e) {
+            for (var i = 0; i < entities.length; i++) {
+                entities[i].onmouseup(e);
+            }
+        }
+        document.onmousemove = function (e) {
+            for (var i = 0; i < entities.length; i++) {
+                entities[i].onmousemove(e);
+            }
+        }
+        document.getElementById('latex').style.visibility = 'hidden';
+        math_render('\\begin{aligned} \\left(d+e-\\left[f-g\\right]\\right)\\end{aligned}', {top: 200, right: 150})
+        math_render('\\begin{aligned} -(a+b) \\end{aligned}', {top: 160, right: 230})
+
+        // setup keyboard shortcuts
+        document.onkeydown = keyboard_keydown;
+        document.onkeyup = keyboard_keyup;
+
+        // set up onmouseover and onmouseout for className buffer-div
+        const buffer_divs = document.getElementsByClassName('buffer-div');
+        for(var i=0;i<buffer_divs.length;i++){
+            const buffer_div = buffer_divs[i];
+            buffer_div.style.border = '1px solid white';
+            buffer_div.onmouseover = function(e){
+                this.style.border = '1px solid black';
+                mouseover_buffer_div_id = this.id;
+            }
+            buffer_div.onmouseout = function(e){
+                this.style.border = '1px solid white';
+                mouseover_buffer_div_id = null
+            }
+            buffer_div.onmousewheel = buffer_display_onscroll
+        }
+    }
+    var mouseover_buffer_div_id = null;
+    function add_entity(location=null){
+        const raw_latex = document.getElementById('latex').value;
+        if(raw_latex.length == 0) return;
+        // wrap with aligned
+        const aligned = '\\begin{aligned}' + removedAligned(raw_latex) + '\\end{aligned}';
+        math_render(aligned, location);
+    }
+    function render() {
+        init()
+        add_entity({top: 200, right: 200})
+    }
+    function delete_entity(){
+        if(focused_entity == null) return;
+        document.getElementById('output').removeChild(focused_entity.node);
+        document.getElementById('latex').value = '';
+        focused_entity = null;
+    }
+    var old_textarea_style = {
+        width: '400px',
+        height: '150px',
+    };
+    function save_old_textarea_style(){
+        var textarea = document.getElementById('latex');
+        old_textarea_style = {
+            width: textarea.style.width,
+            height: textarea.style.height,
+        }
+    }
+    function show_textarea(){
+        var textarea = document.getElementById('latex');
+        textarea.style.visibility = 'visible';
+        textarea.style.width = old_textarea_style.width
+        textarea.style.height = old_textarea_style.height
+    }
+    function toggle_textarea(force) {
+        if(force == 1){
+            show_textarea();
+            return;
+        }
+        var textarea = document.getElementById('latex');
+        if (textarea.style.visibility == 'hidden') {
+            show_textarea();
+        } else {
+            textarea.style.visibility = 'hidden';
+            save_old_textarea_style();
+            textarea.style.width = '0px';
+            textarea.style.height = '0px';
+        }
+    }
+    var equation_buffers = [];
+    function expand(){
+        // get idx of buffer-a-select and buffer-b-select
+        const buffer_a_idx = document.getElementById('buffer-a-select').value;
+        const buffer_b_idx = document.getElementById('buffer-b-select').value;
+        // get the buffers
+        const buffer_a = equation_buffers[buffer_a_idx];
+        const buffer_b = equation_buffers[buffer_b_idx];
+        // expand the buffers, joining with the first delimiter
+        const delimiter = document.getElementById('delimiter-textfield').value;
+        const firstDelimiter = delimiter.split(',')[0];
+        const secondDelimiter = delimiter.split(',')[1]; 
+        var expanded_buffer_terms = [];
+        for(var i=0;i<buffer_a.equations.length;i++){
+            const a = buffer_a.equations[i];
+            for(var j=0;j<buffer_b.equations.length;j++){
+                const b = buffer_b.equations[j];
+                if(a.length == 0 || b.length == 0) continue;
+                const neg = (a[0] == secondDelimiter) ^ (b[0] == secondDelimiter);
+                const absA = a[0] == secondDelimiter ? a.substring(1, a.length) : a;
+                const absB = b[0] == secondDelimiter ? b.substring(1, b.length) : b;
+                expanded_buffer_terms.push((neg ? secondDelimiter : firstDelimiter) + absA + absB);
+            }
+        }
+        const expanded_buffer = [expanded_buffer_terms.join(' ')];
+        if(expanded_buffer[0][0] == firstDelimiter){
+            expanded_buffer[0] = expanded_buffer[0].substring(1, expanded_buffer[0].length);
+        }
+        // render
+        add_buffer('exp-'+equation_buffers.length, expanded_buffer);
+        document.getElementById('buffer-o-select').value = equation_buffers.length - 1;
+        refresh_buffer_display();
+    }
+    function copy_into_buffer(){
+        var [start, end, sel] = get_selection();
+
+        if(sel.length == 0) sel = removedAligned(document.getElementById('latex').value); // if nothing selected, entire thing is selected
+        // render
+        add_buffer('copy-'+equation_buffers.length, [sel]);
+        document.getElementById('buffer-a-select').value = equation_buffers.length - 1;
+        refresh_buffer_display();
+    }
+    function separate(){
+        const delimiter = document.getElementById('delimiter-textfield').value;
+        const firstDelimiter = delimiter.split(',')[0];
+        const secondDelimiter = delimiter.split(',')[1]; // the minus sign
+        var [start, end, sel] = get_selection();
+        if(sel.length == 0) sel = removedAligned(document.getElementById('latex').value); // if nothing selected, entire thing is selected
+        // split sel by firstDelimiter (plus sign) and secondDelimiter (minus sign)
+        // taking good care of brackets
+        const brackets = [['(', ')'], ['{', '}'], ['[', ']']];
+        var bracket_stack = [];
+        /*
+        task: split sel by firstDelimiter and secondDelimiter, but only up to the first level, meaning
+        if there are brackets, don't split inside the brackets
+        e.g. (a+b+c) + (d+e+f) - x should be split into (a+b+c), (d+e+f) and x
+
+        algorithm: every character has a "level", which is the number of brackets that it is inside
+        at the end, we just split by the delimiters of level 0
+        */
+        var terms = [];
+        var prev_idx = 0;
+        var prev_delimiter = '';
+        for(var i=0;i<sel.length;i++){
+            var char = sel[i];
+            const level = bracket_stack.length;
+            if((char == firstDelimiter || char == secondDelimiter) && level == 0){
+                // split here
+                terms.push((prev_delimiter == secondDelimiter ? prev_delimiter : '') + sel.substring(prev_idx, i));
+                prev_idx = i+1;
+                prev_delimiter = char;
+            }else{
+                // check if char is a bracket
+                for(var j=0;j<brackets.length;j++){
+                    if(char == brackets[j][0]){
+                        // push to stack
+                        bracket_stack.push(char);
+                    }else if(char == brackets[j][1]){
+                        // pop from stack
+                        bracket_stack.pop();
+                    }
+                }
+            }
+        }
+        // add the last term
+        terms.push((prev_delimiter == secondDelimiter ? prev_delimiter : '' ) + sel.substring(prev_idx, sel.length));
+        if(terms.length == 1){
+            // remove whitespace around the term
+            terms[0] = terms[0].trim();
+            // remove \\ at the end
+            if(terms[0][terms[0].length-1] == '\\'){
+                terms[0] = terms[0].substring(0, terms[0].length-2);
+            }
+            terms[0] = terms[0].trim();
+            // remove surrounding brackets
+            const first_char = terms[0][0];
+            const last_char = terms[0][terms[0].length-1];
+            var remove_brackets = false;
+            for(var j=0;j<brackets.length;j++){
+                if(first_char == brackets[j][0] && last_char == brackets[j][1]){
+                    remove_brackets = true;
+                    break;
+                }
+            }
+            if(remove_brackets){
+                terms[0] = terms[0].substring(1, terms[0].length-1);
+            }
+            // remove \left( and \right)
+            if(!remove_brackets){
+                for(var j=0;j<brackets.length;j++){
+                    if(terms[0].substring(0, 6) == '\\left' + brackets[j][0] && terms[0].substring(terms[0].length-7, terms[0].length) == '\\right' + brackets[j][1]){
+                        remove_brackets = true;
+                        break;
+                    }
+                }
+                if(remove_brackets){
+                    terms[0] = terms[0].substring(6, terms[0].length-7);
+                }
+            }
+        }
+        var equation_buffer = [];
+        for(var i=0;i<terms.length;i++){
+            // if all whitespaces
+            const current_term = terms[i];
+            if(current_term.replace(/\s/g, '').length == 0) continue;
+            // render
+            equation_buffer.push(current_term);
+        }
+        add_buffer('sep-'+equation_buffers.length, equation_buffer);
+        document.getElementById('buffer-a-select').value = equation_buffers.length - 1;
+        refresh_buffer_display();
+    }
+    function add_buffer(name, equation_buffer=[]){
+        const buffer = {
+            name: name,
+            equations: equation_buffer,
+        }
+        equation_buffers.push(buffer);
+        // add new option in dropdown list
+        const buffer_selects = document.getElementsByClassName('buffer-select')
+        for(var i=0;i<buffer_selects.length;i++){
+            const buffer_select = buffer_selects[i];
+            const option = document.createElement('option');
+            option.value = equation_buffers.length - 1;
+            option.innerHTML = name;
+            buffer_select.appendChild(option);
+        }
+    }
+    function refresh_buffer_display(){
+        // className buffer-select
+        const buffer_selects = document.getElementsByClassName('buffer-select')
+        for(var i=0; i<buffer_selects.length;i++){
+            const buffer_select = buffer_selects[i];
+            const buffer_idx = buffer_select.value;
+            const buffer = equation_buffers[buffer_idx];
+            const which_buffer = buffer_select.id.split('-')[1]; // a,b,o
+            const buffer_display_element = document.getElementById('buffer-' + which_buffer + '-display');
+            render_buffer(buffer_display_element, buffer.equations, which_buffer, buffer_idx);
+        }
+    }
+    function buffer_display_onselect(){
+        refresh_buffer_display();
+    }
+    function buffer_display_onscroll(e){
+        this.getElementsByClassName('buffer-select')[0].value = 
+            (e.deltaY > 0 ? 
+                Math.max(this.getElementsByClassName('buffer-select')[0].value - 1, 0) : 
+                Math.min(this.getElementsByClassName('buffer-select')[0].value + 1, equation_buffers.length - 1));
+        refresh_buffer_display();
+    }
+    function insert_into_latex_field(text, cursor_offset=0){
+        console.log(text)
+        const textarea = document.getElementById('latex');
+        const [start, end, sel] = get_selection();
+        textarea.value = textarea.value.substring(0, start) + text + textarea.value.substring(end, textarea.value.length);
+        textarea.selectionStart = start + cursor_offset;
+        textarea.selectionEnd = start + cursor_offset;
+    }
+    function term_onclick(e){
+            var target = e.target;
+            var timeout = 100;
+            while(target.getElementsByClassName('code').length == 0){
+                if(timeout-- < 0) break; // prevent infinite loop
+                target = target.parentElement;
+            }
+            var code = target.getElementsByClassName('code')[0].innerHTML;
+            const firstDelimiter = document.getElementById('delimiter-textfield').value.split(',')[0];
+            const secondDelimiter = document.getElementById('delimiter-textfield').value.split(',')[1]; // the minus sign
+            const insert_delimiter = document.getElementById('append-insert-delimiter').checked;
+            if(document.getElementById('append-checkbox').checked){
+                if(code[0] == secondDelimiter){
+                    if(!insert_delimiter){ // multiplicative
+                        code = '\\left(' + code + '\\right)'
+                    }
+                }else{
+                    if(insert_delimiter){ // additive
+                        code = '+' + code;
+                    }
+                }
+                insert_into_latex_field(code, code.length)
+            }else{
+                document.getElementById('latex').value = code;
+                focused_entity = null;
+            }
+            toggle_textarea(1);
+    }
+    function delete_buffer_term(e){
+        const code = e.target.getElementsByClassName('code')[0]?.innerHTML
+        if(code == null) return;
+        const buffer_idx = e.target.parentElement.parentElement.getElementsByClassName('buffer-select')[0].value;
+        const buffer = equation_buffers[buffer_idx];
+        // delete the first occurrence
+        for(var i=0;i<buffer.equations.length;i++){
+            if(buffer.equations[i] == code){
+                buffer.equations.splice(i, 1);
+                break;
+            }
+        }
+        refresh_buffer_display();
+    }
+    function render_buffer(buffer_display_element, equation_buffer, display='a', idx=equation_buffers.length-1){
+        // clear the buffer
+        buffer_display_element.innerHTML = '';
+        // render the buffer
+        for(var i=0;i<equation_buffer.length;i++){
+            const code = equation_buffer[i];
+            MathJax.tex2svgPromise('\\begin{aligned}' + code + '\\end{aligned}').then((node) => {
+                const child_element = buffer_display_element.appendChild(node.children[0]);
+                child_element.style = 'border: 1px solid black; padding-left: 5px; padding-right: 5px; margin-right: 5px; margin-left: 5px;';
+                const metadata = child_element.appendChild(document.createElement('span'))
+                metadata.style = 'display: none;'
+                metadata.classList.add('code');
+                metadata.innerHTML = code;
+                child_element.onclick = term_onclick;
+                child_element.oncontextmenu = delete_buffer_term;
+                child_element.onmouseover = function(e){
+                    child_element.style.border = '1px solid red';
+                }
+                child_element.onmouseout = function(e){
+                    child_element.style.border = '1px solid black';
+                }
+            }).catch((err) => {
+                console.error(error)
+            })
+        }
+        // display the correct thing in the dropdown 
+        document.getElementById('buffer-' + display).getElementsByClassName('buffer-select')[0].value = idx
+    }
+    var shortcut_state = {
+        alt: false,
+        keys: [],
+    }
+    function add_fraction(){
+        const textarea = document.getElementById('latex')
+        const [start, end, sel] = get_selection();
+        // insert \frac{}{} at the start of sel
+        textarea.value = textarea.value.substring(0, start) + '\\frac{}{}' + textarea.value.substring(end, textarea.value.length);
+        // move cursor to the first {
+        textarea.selectionEnd = start + 6;
+        textarea.selectionStart = start + 6;
+    }
+    function add_partial(){
+        insert_into_latex_field('\\partial ', 9)
+    }
+    function add_integral(){
+        insert_into_latex_field('\\int_{}^{} ', 10)
+    }
+    function add_sigma(){
+        insert_into_latex_field('\\sigma ', 10)
+    }
+    function add_bracket(bracket){
+        const textarea = document.getElementById('latex')
+        const [start, end, sel] = get_selection();
+        if(sel.length == 0){
+            // insert \left(\right)
+            insert_into_latex_field('\\left' + bracket[0] + '\\right' + bracket[1], 6)
+        }else{
+            // insert bracket at the start of sel
+            insert_into_latex_field('\\left' + bracket[0] + sel + '\\right' + bracket[1], sel.length + 13)
+        }
+    }
+    function add_subsuperscript(subsuperscript){
+        const textarea = document.getElementById('latex')
+        const [start, end, sel] = get_selection();
+        if(sel.length == 0){
+            // insert {}_{}
+            insert_into_latex_field('{}_{}', 1)
+        }else{
+            // insert subsuperscript at the start of sel
+            insert_into_latex_field('{' + sel + '}' + subsuperscript + '{}', sel.length + 4)
+        }
+    }
+    function append_to_buffer(which_buffer='b'){
+        var [start, end, sel] = get_selection();
+        if(sel.length == 0) sel = removedAligned(document.getElementById('latex').value);
+        const buffer_idx = document.getElementById('buffer-' + which_buffer + '-select').value;
+        const buffer = equation_buffers[buffer_idx];
+        buffer.equations.push(sel);
+        refresh_buffer_display();
+    }
+    function keyboard_keydown(e){
+        if(e.key == 'Alt'){
+            shortcut_state.alt = true;
+            document.getElementById('append-checkbox').checked = true;
+            return; // prevent the bug where pressing alt alone will trigger the shortcut
+        }else{
+            shortcut_state.keys = shortcut_state.keys.filter((key) => key != e.key); // in case there are duplicates
+            shortcut_state.keys.push(e.key); 
+        }
+        if(shortcut_state.alt &&       e.key == 'a'){
+            add_entity();
+        }else if(shortcut_state.alt && e.key == 't'){
+            toggle_textarea();
+        }else if(shortcut_state.alt && e.key == 'x'){
+            expand();
+        }else if(shortcut_state.alt && e.key == 'c'){
+            copy_into_buffer();
+        }else if(shortcut_state.alt && e.key == 's'){
+            separate();
+        }else if(shortcut_state.alt && e.key == 'q'){ // for quotient
+            add_fraction();
+        }else if(shortcut_state.alt && e.key == 'p'){ // partial
+            add_partial()
+        }else if(shortcut_state.alt && e.key == 'i'){ // integral
+            add_integral()
+        }else if(shortcut_state.alt && e.key == '9'){ // brackets
+            add_bracket('()')
+        }else if(shortcut_state.alt && e.key == '6'){ // subscripts
+            add_subsuperscript('^')
+        }else if(shortcut_state.alt && e.key == '['){ // brackets
+            add_bracket('[]')
+        }else if(shortcut_state.alt && e.key == '-'){ // subscripts
+            add_subsuperscript('_')
+        }else if(shortcut_state.alt && e.key == 'b'){ // add to buffer B
+            append_to_buffer('b')
+        }
+    }
+    function keyboard_keyup(e){
+        if(e.key == 'Alt'){
+            shortcut_state.alt = false;
+            document.getElementById('append-checkbox').checked = false;
+        }else{
+            shortcut_state.keys = shortcut_state.keys.filter((key) => key != e.key);
+        }
+    }
+    function help_menu(){
+        alert("Hover over buttons for keyboard shortcut")
+    }
+</script>
+
+<body onload='render()'>
+
+    <!-- <canvas class='workspace' id='output' width='500' height='500'></canvas> -->
+    <div id='output'></div>
+    <div class="overlay add-entity">
+        <div class="input-panel">
+            <textarea class="latex-input" id='latex' onkeyup="latex_onkeyup()" onmouseup="latex_onmouseup()">
+  W_\alpha &= -\frac{1}{4} \bar{D}^2 D_\alpha V \\
+  &= -\frac{1}{4} \bar{D}^2 (-\sigma^\nu_{\alpha\dot\beta} \bar\theta^{\dot\beta} A_\nu + i\theta_\alpha \overline{\theta\lambda} - i \bar\theta^2 \lambda_\alpha + \frac{1}{2} \theta_\alpha \bar{\theta}^2 D - i \sigma_{\alpha \dot\alpha}^\mu \bar\theta^{\dot\alpha} \theta^\beta \sigma_{\beta\dot\beta}^\nu \bar\theta^{\dot\beta} \partial_\mu A_\nu - \sigma_{\alpha \dot \alpha}^\mu \bar\theta^{\dot\alpha} \theta^\beta \theta_\beta \bar\theta^{\dot\beta} \partial_\mu \bar\lambda_{\dot\beta}) \\
+  &= (a+b-c) + (d-e+f) - x \\
+</textarea><br>
+        </div>
+        <div class="actions-panel">
+            <span class="tooltip">
+                <button class="toggle-textarea" onclick="toggle_textarea()">Toggle Textarea</button>
+                <span class="tooltiptext">Alt + T</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_entity()">Add Entity</button>
+                <span class="tooltiptext">Alt + A</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_integral()">Integral</button>
+                <span class="tooltiptext">Alt + I</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_fraction()">Fraction</button>
+                <span class="tooltiptext">Alt + Q</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_partial()">Partial</button>
+                <span class="tooltiptext">Alt + P</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_sigma()">Sum</button>
+                <!-- <span class="tooltiptext">Alt + P</span> -->
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_bracket('()')">Brackets</button>
+                <span class="tooltiptext">Alt + 9, Alt + [</span>
+            </span> <br>
+            <span class="tooltip">
+                <button class="add-entity" onclick="add_subsuperscript('_')">Subscripts</button>
+                <span class="tooltiptext">Alt + 6, Alt + -</span>
+            </span> <br>
+            <!-- <span class="tooltip"> -->
+                <!-- <button class="delete-entity" onclick="delete_entity()">Delete</button> -->
+                <!-- <span class="tooltiptext">Alt + D</span> -->
+            <!-- </span> -->
+            <!-- <br> -->
+            <button onclick="help_menu()">Help</button><br>
+            <input type="checkbox" id="auto-render" checked onchange="latex_onkeyup()"> Auto-Render
+        </div>
+        <div class="buffers">
+            <input type="checkbox" id="append-checkbox"> Append (Hold Alt)<br>
+            <input type="checkbox" id="append-insert-delimiter"> Insert + <br>
+            <span class="tooltip">
+                <input type="button" value="Expand" onclick="expand()"> <br> 
+                <span class="tooltiptext">Alt + X</span>
+            </span> 
+            <span class="tooltip">
+                <input type="button" value="Copy" onclick="copy_into_buffer()"> 
+                <span class="tooltiptext">Alt + C</span>
+            </span> 
+            <span class="tooltip">
+                <input type="button" value=">> Buffer B" onclick="append_to_buffer()"> 
+                <span class="tooltiptext">Alt + B</span>
+            </span> 
+            <span class="tooltip">
+                <input type="button" value="Separate" onclick="separate()"> 
+                <span class="tooltiptext">Alt + S</span>
+            </span> 
+            <input type="text" placeholder="Delimiter" value="+,-" id="delimiter-textfield"><br>
+            <div id="buffer-a" class="buffer-div">
+                A:
+                <!-- <input type="button" value="Rename" onclick=""> 
+                <input type="button" value="Delete" onclick=""> 
+                <input type="button" value="Render" onclick="">  -->
+                <select id="buffer-a-select" class="buffer-select" onchange="buffer_display_onselect()" onscroll="buffer_display_onscroll">
+                </select>
+                <span id="buffer-a-display">Choose a Buffer</span>
+            </div><br>
+            <div id="buffer-b" class="buffer-div">
+                B:
+                <!-- <input type="button" value="Rename" onclick=""> 
+                <input type="button" value="Delete" onclick=""> 
+                <input type="button" value="Render" onclick="">  -->
+                <select id="buffer-b-select" class="buffer-select" onchange="buffer_display_onselect()" onscroll="buffer_display_onscroll">
+                </select>
+                <span id="buffer-b-display">Choose a Buffer</span>
+            </div><br>
+            <div id="buffer-o" class="buffer-div">
+                O:
+                <!-- <span class="tooltip"><input type="button" value="Rename" onclick=""> <span class="tooltiptext">meow</span></span> -->
+                <!-- <input type="button" value="Rename" onclick=""> 
+                <input type="button" value="Delete" onclick=""> 
+                <input type="button" value="Render" onclick="">  -->
+                <select id="buffer-o-select" class="buffer-select" onchange="buffer_display_onselect()" onscroll="buffer_display_onscroll">
+                </select>
+                <span id="buffer-o-display">Choose a Buffer</span>
+            </div>
+        </div>
+    </div>
+</body>

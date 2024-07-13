@@ -1,0 +1,281 @@
+<script>
+  MathJax = {
+    loader: {load: ['output/svg']}
+  };
+  </script>
+  <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-svg.js"></script>
+<script>
+  function math_render(code){
+    MathJax.tex2svgPromise(code).then((node) => {
+      var output = document.getElementById('output')
+      output.innerHTML = '';
+      console.log(node)
+      output.appendChild(node)
+    }).catch((err) => {
+      console.log("err")
+    })
+  }
+  function force_render(){
+    var code = document.getElementById('latex').value;
+    math_render(code);
+  }
+  function render(){
+    if(!document.getElementById('auto-render').checked){
+      return;
+    }
+    force_render();
+    mouseup();
+  }
+  function get_selection(){
+    var textarea = document.getElementById('latex');
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    var sel = textarea.value.substring(start, end);
+    return [start, end, sel];
+  }
+  function mouseup(){
+   // replace textarea.value with the bolded
+    var textarea = document.getElementById('latex');
+    const [start, end, sel] = get_selection();
+    if (sel.length == 0){
+      return;
+    }
+    var before = textarea.value.substring(0, start);
+    var after = textarea.value.substring(end, textarea.value.length);
+    var bolded = before + "{\\underbrace{" + sel + "}}" + after;
+    math_render(bolded);
+  }
+  function copy_last(){
+    // get textarea
+    var textarea = document.getElementById('latex');
+    // get last line
+    var lines = textarea.value.split('=');
+    var last_line = lines[lines.length - 1];
+    // trim last line to exclude \end{aligned}
+    last_line = last_line.substring(0, last_line.lastIndexOf('\\end{aligned}'));
+    var end_aligned = textarea.value.lastIndexOf('\\end{aligned}');
+    var before = textarea.value.substring(0, end_aligned);
+    var after = textarea.value.substring(end_aligned, textarea.value.length);
+    textarea.value = before + '\n &=' + last_line + after;
+    math_render(textarea.value)
+  }
+  function delete_last(){
+    // get textarea
+    var textarea = document.getElementById('latex');
+    // get last line
+    var lines = textarea.value.split('&=');
+    // use all lines except the last one
+    var before = lines.slice(0, lines.length - 1).join('&=');
+    var end_aligned = textarea.value.lastIndexOf('\\end{aligned}');
+    var after = textarea.value.substring(end_aligned, textarea.value.length);
+    textarea.value = before + after;
+    math_render(textarea.value)
+  }
+  var buffer = []
+  function update_display_buffer(){
+    var buffer_content = document.getElementById('buffer-content');
+    buffer_content.innerHTML = '';
+    // chain promises
+    var promises = []
+    for(var i = 0; i < buffer.length; i++){
+      promises.push(MathJax.tex2svgPromise(buffer[i]))
+    }
+    Promise.all(promises).then((nodes) => {
+      for(var i = 0; i < nodes.length; i++){
+        buffer_content.appendChild(nodes[i].children[0])
+        buffer_content.innerHTML += ','
+      }
+    }).catch((err) => {
+      console.log("err")
+    })
+    // for(var i = 0; i < buffer.length; i++){
+    //   // render
+    //   MathJax.tex2svgPromise(buffer[i]).then((node) => {
+    //     buffer_content.appendChild(node)
+    //   }).catch((err) => {
+    //     console.log("err")
+    //   })
+    //   buffer_content.appendChild()
+    // }
+  }
+  function add_to_buffer(){
+    const [start, end, sel] = get_selection();
+    if (sel.length == 0){
+      return;
+    }
+    buffer.push(sel);
+    update_display_buffer()
+  }
+  function clear_buffer(){
+    if (confirm("Are you sure you want to clear the buffer?")){
+      buffer = []
+      update_display_buffer()
+    }
+  }
+  function cancellation(){
+    var textarea = document.getElementById('latex');
+    var end_aligned = textarea.value.lastIndexOf('\\end{aligned}');
+    var before = textarea.value.substring(0, end_aligned);
+    var after = textarea.value.substring(end_aligned, textarea.value.length);
+    // get last line 
+    var lines = textarea.value.split('=');
+    var last_line = lines[lines.length - 1];
+    last_line = last_line.substring(0, last_line.lastIndexOf('\\end{aligned}'));
+    for(var i = 0; i < buffer.length; i++){
+      last_line = last_line.replace(buffer[i], '')
+    }
+    textarea.value = before + '\n &=' + last_line + after;
+    math_render(textarea.value)
+  }
+  function shortcut(event){
+    console.log(event.keyCode)
+    // if control + c
+    if(event.ctrlKey && event.keyCode == 67){
+      copy_last()
+    }
+    // ctrl + d
+    if(event.ctrlKey && event.keyCode == 68){
+      delete_last()
+    }
+    // ctrl + b
+    if(event.ctrlKey && event.keyCode == 66){
+      add_to_buffer()
+    }
+    // ctrl + x
+    if(event.ctrlKey && event.keyCode == 88){
+      cancellation()
+    }
+    // ctrl E
+    if(event.ctrlKey && event.keyCode == 69){
+      expand()
+    }
+    // ctrl N
+    if(event.ctrlKey && event.keyCode == 78){
+      clear_buffer()
+    }
+    // ctrl S
+    if(event.ctrlKey && event.keyCode == 83){
+      separate()
+    }
+  }
+  function expand(){
+    // first 2
+    buffer = buffer.slice(0, 2)
+    // go through each buffer
+    terms = [[],[]]
+    for(var i = 0; i < buffer.length; i++){
+      // find indices of +
+      var indices = []
+      var index = buffer[i].indexOf('+')
+      while(index != -1){
+        indices.push(index)
+        index = buffer[i].indexOf('+', index + 1)
+      }
+      // find indices of -
+      var indices_minus = []
+      var index = buffer[i].indexOf('-')
+      while(index != -1){
+        indices_minus.push(index)
+        index = buffer[i].indexOf('-', index + 1)
+      }
+      // merge
+      indices = indices.concat(indices_minus)
+      indices.sort(function(a, b){return a - b})
+      // split by indices
+      var start = 0
+      for(var j = 0; j < indices.length; j++){
+        terms[i].push(buffer[i].substring(start, indices[j]))
+        start = indices[j]
+      }
+      terms[i].push(buffer[i].substring(start, buffer[i].length))
+    }
+    // get the last line and before and after
+    var textarea = document.getElementById('latex');
+    var end_aligned = textarea.value.lastIndexOf('\\end{aligned}');
+    var before = textarea.value.substring(0, end_aligned);
+    var after = textarea.value.substring(end_aligned, textarea.value.length);
+    // get last line
+    var lines = textarea.value.split('=');
+    var last_line = lines[lines.length - 1];
+    last_line = last_line.substring(0, last_line.lastIndexOf('\\end{aligned}'));
+    // double for loop expansion
+    var new_terms = []
+    for(var i = 0; i < terms[0].length; i++){
+      for(var j = 0; j < terms[1].length; j++){
+        // format string javascript
+        new_terms.push(`(${terms[0][i]})(${terms[1][j]})`)
+      }
+    }
+    // replace last line with terms
+    last_line = last_line.replace(buffer[0], new_terms.join('\n +'))
+    last_line = last_line.replace(buffer[1], '')
+    textarea.value = before + '\n &=' + last_line + after;
+    math_render(textarea.value)
+  }
+  function separate(){
+    // take the last line and replace all + and - with \n
+    var textarea = document.getElementById('latex');
+    var end_aligned = textarea.value.lastIndexOf('\\end{aligned}');
+    var before = textarea.value.substring(0, end_aligned);
+    var after = textarea.value.substring(end_aligned, textarea.value.length);
+    // get last line
+    var lines = textarea.value.split('=');
+    var last_line = lines[lines.length - 1];
+    last_line = last_line.substring(0, last_line.lastIndexOf('\\end{aligned}'));
+    // replace all + and - with \n
+    last_line = last_line.replaceAll('+', '\\\\\n&+')
+    last_line = last_line.replaceAll('-', '\\\\\n&-')
+    textarea.value = before + '\n &=' + last_line + after;
+    math_render(textarea.value)
+  }
+</script>
+<body onkeydown="shortcut(event)" onload='render()'>
+  <div class="left">
+    <textarea id='latex' class='latex' onkeyup="render()" onmouseup="mouseup()">\begin{aligned}
+  W_\alpha &= -\frac{1}{4} \bar{D}^2 D_\alpha V \\
+  &= -\frac{1}{4} \bar{D}^2 (-\sigma^\nu_{\alpha\dot\beta} \bar\theta^{\dot\beta} A_\nu + i\theta_\alpha \overline{\theta\lambda} - i \bar\theta^2 \lambda_\alpha + \frac{1}{2} \theta_\alpha \bar{\theta}^2 D - i \sigma_{\alpha \dot\alpha}^\mu \bar\theta^{\dot\alpha} \theta^\beta \sigma_{\beta\dot\beta}^\nu \bar\theta^{\dot\beta} \partial_\mu A_\nu - \sigma_{\alpha \dot \alpha}^\mu \bar\theta^{\dot\alpha} \theta^\beta \theta_\beta \bar\theta^{\dot\beta} \partial_\mu \bar\lambda_{\dot\beta}) \\
+  &= (a+b-c) (d-e +f)\\
+\end{aligned}</textarea>
+  </div>
+  <input type="button" value="Render" onclick="force_render()">
+  <input type="checkbox" id="auto-render" checked> Auto-Render
+  <div class="right">
+    <div id='output' class="output"></div>
+  </div><br>
+  Buffer: <p id="buffer-content"></p> <br>
+  Actions (Ctrl-Letter): 
+  <input type="button" value="Copy Last (C)" onclick="copy_last()">
+  <input type="button" value="Delete Last (D)" onclick="delete_last()">
+  <!-- <input type="button" value="Copy Selected" onclick="copy_selected()"> -->
+  <input type="button" value="Add to Buffer (B)" onclick="add_to_buffer()">
+  <input type="button" value="Clear Buffer (N)" onclick="clear_buffer()">
+  <input type="button" value="Cancellation (X)" onclick="cancellation()">
+  <input type="button" value="Expand (E)" onclick="expand()">
+  <input type="button" value="Separate (S)" onclick="separate()">
+</body>
+<style>
+  body {
+    overflow-y: hidden;
+  }
+  .latex {
+    /* width: 500px; */
+    width: 95%;
+    height: 100%;
+  }
+  .left {
+    float:left;
+    width: 50%;
+  }
+  .right {
+    float:right;
+    width: 50%;
+    height: 70%;
+    overflow-y: hidden;
+  }
+  .output {
+    width: 90%;
+    height: 90%;
+    overflow-x: scroll;
+    overflow-y: scroll;
+  }
+</style>

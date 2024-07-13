@@ -1,0 +1,517 @@
+\documentclass{beamer}
+%Information to be included in the title page:
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+\title{Why $D=26$ in Bosonic String Theory}
+\author{Tan Chien Hao}
+\institute{\url{www.tchlabs.net} \\ @tch1001}
+\date{\today}
+
+% Symbol and utility packages
+\usepackage{cancel, textcomp}
+\usepackage[mathscr]{euscript}
+\usepackage[nointegrals]{wasysym}
+\usepackage{physics}
+% Standard mathematical typesetting packages
+\usepackage{amsfonts, amsthm, amsmath, amssymb}
+\usepackage{mathtools}  % Extension to amsmath
+
+\newcommand{\paren}[1]{\ensuremath{\left(#1\right)}}
+\newcommand{\sqbr}[1]{\ensuremath{\left[#1\right]}}
+\def\f#1/#2.{\frac{#1}{#2}}
+\newcommand{\ob}[2]{\ensuremath{\overbrace{#1}^{\text{#2}}}}
+\newcommand{\ub}[2]{\ensuremath{\underbrace{#1}_{\text{#2}}}}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Agenda}
+Jeb has explained Ward Identities = Quantum Noether's Theorem. There was an assumption that $D\phi = D\phi'$. If this assumption fails we get anomalies. Let's talk about the Weyl anomaly because it is part of the reason bosonic string theory needs 26 dimensions (and superstring 10).
+\end{frame}
+\begin{frame}{Polyakov Action}
+We start from the polyakov action for strings. Both $g$ and $X$ are dynamical.
+    \begin{align}
+        S_{\text {Poly }}=\frac{1}{4 \pi \alpha^{\prime}} \int d^2 \sigma \sqrt{g} g^{\alpha \beta} \partial_\alpha X^\mu \partial_\beta X^\nu \delta_{\mu \nu}
+    \end{align}
+    In trying to quantise this action using the Path Integral, we will need to apply Faddeev-Popov, which would lead to ghost fields ($bc$ CFT). 
+    \newline \\ 
+    Before quantising, we need to find the gauge symmetries to integrate out. We have diffeomorphism invariance
+    \begin{align}
+        \sigma \mapsto \sigma^{\prime}(\sigma) 
+    \end{align}
+    and Weyl invariance
+    \begin{align}
+        g_{\alpha \beta} & \mapsto g_{\alpha \beta}^{\prime}=\Omega^2(\sigma) g_{\alpha \beta}(\sigma) 
+    \end{align}
+\end{frame}
+\begin{frame}{Diffeomorphism Invariance}
+    \begin{align}
+    \sigma &\mapsto \sigma^{\prime}(\sigma) \\
+        g^{\alpha \beta} &\mapsto g^{\alpha \beta \beta}=g^{\gamma \delta} \frac{\partial \sigma^{\prime \alpha}}{\partial \sigma^\gamma} \frac{\partial\sigma ^{\prime \beta}}{\partial \sigma^\delta}\\
+        \partial_\alpha &\mapsto \partial_\alpha^{\prime}=\frac{\partial \sigma^\eta}{\partial \sigma^{\prime \alpha}} \frac{\partial}{\partial \sigma^\eta} \\
+        \partial_\beta &\mapsto \partial_{\beta}^{\prime}=\frac{\partial \sigma^\rho}{\partial \sigma'^\beta} \frac{\partial}{\partial \sigma^\rho}\\
+        \mathcal{L}&=g^{\alpha \beta} \partial_\alpha X^{\mu} \partial_\beta X^\nu \delta_{\mu \nu} \\
+        \mathcal{L}&\mapsto \mathcal{L}^{\prime}\\
+        &=g^{\prime \gamma \rho} \partial^{\prime}_\eta X^\mu \partial_\rho^{\prime} X^\nu \delta_{\mu \nu} \frac{\partial \sigma'^\alpha }{\partial \sigma^\gamma} 
+\frac{\partial \sigma^{\prime \beta}}{\partial \sigma^\delta} 
+\frac{\partial \sigma^{ \eta}}{\partial \sigma^{\prime \alpha}} \frac{\partial \sigma^{\rho}}{\partial \sigma^{\prime\beta}} \\
+&=g^{\prime \gamma \rho} \partial^{\prime}_\eta X^\mu \partial_\rho^{\prime} X^\nu \delta_{\mu \nu} \delta^\eta_\gamma \delta^\rho_\beta \\
+& =\mathcal{L} \\
+d^2\sigma \sqrt{g} &\mapsto d^2\sigma' \sqrt{g'} 
+    \end{align}
+\end{frame}
+\begin{frame}{Weyl/Conformal Invariance}
+    \begin{align}
+        g_{\alpha \beta} & \mapsto g_{\alpha \beta}^{\prime}=\Omega^2(\sigma) g_{\alpha \beta}(\sigma) \\
+g^{\alpha \beta} & \mapsto \Omega^{-2}(\sigma) g^{\alpha \beta} \\
+\sqrt{\text{det } g} & \mapsto\sqrt{\text{det } g'}\\&=\sqrt{\Omega^4 \text{det } g}\\&=\Omega^2 \sqrt{\text{det } g}
+    \end{align}
+    We will define $e^{2\omega} \equiv \Omega^2$ as the scaling factor.
+\end{frame}
+\begin{frame}{Gauge Transformation of $g$}
+    Let's define a few things \newline \\
+    $\hat{g}$ means a specific choice of gauge
+    \newline \\
+    For any metric $g$, we define a combined gauge transformation (diffeo + Weyl)
+    \begin{align}
+        g^\zeta \equiv e^{2\omega(\sigma)} \frac{\partial \sigma^c }{\partial \sigma'^a} \frac{\partial \sigma^d}{\partial \sigma'^b} g_{cd}(\sigma)
+    \end{align}
+    Infintesimally, $\sigma \mapsto \sigma + v(\sigma)$ for a small $v<<1$ \& $\omega(\sigma) << 1$ leads to
+    \begin{align}
+        g^\zeta = g+2 \omega \hat{g}_{\alpha \beta}+\nabla_\alpha v_\beta+\nabla_\beta v_\alpha
+    \end{align}
+    we call $v(\sigma)$ and $\omega(\sigma)$ the generators of the gauge transformation.
+\end{frame}
+\begin{frame}{Path Integral Quantisation}
+    Let's stick the action in the path integral, remembering to divide by the gauge volume. 
+    \begin{align}
+        Z=\frac{1}{\mathrm{Vol}_{\text{diffeo}\times\text{Weyl}}} \int \mathcal{D} g \mathcal{D} X e^{-S_{\text {Poly }}[X, g]}
+    \end{align}
+    We apply the Faddeev Popov procedure, inserting 
+    \begin{align}
+        1\equiv\Delta_{F P}[g] \int \mathcal{D} \zeta\ \delta\left(g-\hat{g}^\zeta\right)
+    \end{align}
+    into the path integral yields
+    \begin{align}
+Z[\hat{g}] & =\frac{1}{\mathrm{Vol}} \int \mathcal{D} \zeta \mathcal{D} X \mathcal{D} g \Delta_{F P}[g] \delta\left(g-\hat{g}^\zeta\right) e^{-S_{\text {Poly }}[X, g]} \\
+& =\frac{1}{\mathrm{Vol}} \int \mathcal{D} \zeta \mathcal{D} X \Delta_{F P}[\hat{g}^\zeta] e^{-S_{\text {Poly }}\left[X, \hat{g}^\zeta\right]}
+    \end{align}
+\end{frame}
+\begin{frame}{Calculating $\Delta_{\text{FP}}^{-1}$}
+    We will now calculate 
+    \begin{align}
+        \Delta_{F P}^{-1}[\hat{g}] \equiv \int \mathcal{D} \zeta\ \delta\left(\hat{g}-\hat{g}^\zeta\right)
+    \end{align}
+    We can do it for infinitesimal gauge transformations first (exponentiating/integrating later to obtain the full). Using the above,
+    \begin{align}
+     \Delta_{F P}^{-1}[\hat{g}] \equiv \int \mathcal{D} \zeta\ \delta\left( 2 \omega \hat{g}_{\alpha \beta}+\nabla_\alpha v_\beta+\nabla_\beta v_\alpha \right)
+    \end{align}
+    Let's expand the delta using fourier. Analogous to $\delta^{(n)}(x) = \int d^n p \exp(2\pi i p\cdot x)$,
+    \begin{align}
+        &\Delta_{F P}^{-1}[\hat{g}]\\
+        &=\int \mathcal{D} \omega \mathcal{D} v \mathcal{D} \beta \exp \left(2 \pi i \int d^2 \sigma \sqrt{\hat{g}} \beta^{\alpha \beta}\left[2 \omega \hat{g}_{\alpha \beta}+\nabla_\alpha v_\beta+\nabla_\beta v_\alpha\right]\right) \notag
+    \end{align}
+\end{frame}
+\begin{frame}{Calculating $\Delta_{\text{FP}}^{-1}$}
+    \begin{claim} Without loss of generality, $\beta^{\alpha\beta} = \beta^{\beta\alpha}$ is a symmetric tensor.
+    \end{claim}
+    \begin{proof}
+    Let $S^{ij}$ be a symmetric tensor and $T_{ij}$ be any tensor. One can decompose $T_{ij}$ into a symmetric and antisymmetric component 
+    \begin{align}
+        T_{ij} = \frac{1}{2} (T_{ij} + T_{ji}) + \frac{1}{2} (T_{ij} - T_{ji})
+    \end{align}
+    If one contracts $S^{ij}$ with $T_{ij}$, the antisymmetric part of $T_{ij}$ vanishes
+    \begin{align}
+        S^{ij} T_{ij} & = S^{ij} \left[ \frac{1}{2} (T_{ij} + T_{ji}) + \frac{1}{2} (T_{ij} - T_{ji}) \right] \\
+        &= \f1/2. \sqbr{S^{ij} (T_{ij} + T_{ji})} + \cancel{\f1/2. \sqbr{S^{ij} (T_{ij} - T_{ji})}} \\
+        &= \f1/2. \sqbr{S^{ij}} (T_{ij} + T_{ji})
+    \end{align}
+    \end{proof}
+\end{frame}
+\begin{frame}{Calculating $\Delta_{\text{FP}}^{-1}$}
+    We can perform the $\mathcal{D}v$ integration to get $\delta(\beta^{\alpha\beta} \hat{g}_{\alpha\beta})$. This implies that ${\beta^{\alpha}}_\alpha=0$ (traceless). This simplifies $\Delta_{\text{FP}}^{-1}$
+    \begin{align}
+        \Delta_{F P}^{-1}[\hat{g}]&=\int \mathcal{D} v \mathcal{D} \beta \exp \left(4 \pi i \int d^2 \sigma \sqrt{\hat{g}} \beta^{\alpha \beta} \nabla_\alpha v_\beta\right)\\
+        &\propto \text{det}^{-1}\ \nabla_\alpha 
+    \end{align}
+    Where the last step involved using \href{https://en.wikipedia.org/wiki/Gaussian_integral}{Gaussian integrals} to calculate inverse determinant. It turns out we can use \href{https://en.wikipedia.org/wiki/Berezin_integral}{Berezin integrals} (Gaussian but with Grassmann variables) to calculate the determinant.
+    \begin{align}
+        \Delta_{F P}[\hat{g}] &= \text{det }\nabla_\alpha
+        =\int \mathcal{D} b \mathcal{D} c \text{ exp} \overbrace{\left[ \frac{i}{2\pi} \int d^2 \sigma \sqrt{g} b_{\alpha\beta} \nabla^\alpha c^\beta \right] }^{-S_{ghost}}  \notag
+    \end{align}
+    where we have absorbed some factors into $b,c$.
+\end{frame}
+\begin{frame}{Full Action = Polyakov + Ghost}
+The full path integral now becomes
+\begin{align}
+    Z[\hat{g}]=\int \mathcal{D} X \mathcal{D} b \mathcal{D} c \exp \left(-S_{\text {Poly }}[X, \hat{g}]-S_{\text {ghost }}[b, c, \hat{g}]\right)
+\end{align}
+Ghosts $b,c$ appear in the full action. However, they are scalar fields that anticommute (in physics: spin-0 fermions), violating the spin statistics theorem. So they are purely calculational tools and do not appear as detectable particles. Anyway, we have quantised string theory! It turns out everything is nicer in complex coordinates (conformal transformations in 2D satisfy Cauchy-Riemann relations). 
+\end{frame}
+
+\begin{frame}{Aside: Calculations in $z,\bar{z}$ space}
+    In CFT we will often work in complex coordinates. If one is familiar with real differential geometry, we can blindly use the coordinate transformation
+    \begin{align}
+        z=x+i y \\
+        \bar{z}=x-i y
+    \end{align}
+    and get the correct results. Strictly speaking real coordinates cannot have the $i$, so behind the scenes, the correctness of the following results is is based on complex manifolds. 
+\end{frame}
+\begin{frame}{Aside: Tensors in $z,\bar{z}$ space}
+    The metric and energy-momentum tensor are tensors of rank $2$, so let's spell out how they transform in the most general case
+    \begin{align}
+         T_{a b}& =T_{i j} \frac{\partial x^i}{\partial y^a} \frac{\partial x^j}{\partial y^b} \\
+         T_{11} & = (T_{\bar z z} + T_{z\bar z} )+ T_{ z z } + T_{\bar z \bar z} \\
+         T_{12}&= T_{zz} \frac{\partial z}{\partial x} \frac{\partial z}{\partial y}+ T_{z\bar{z}}\frac{\partial z}{\partial x} \frac{\partial \bar z}{\partial y} + T_{\bar{z}z} \frac{\partial \bar  z}{\partial x}\frac{\partial z}{\partial y}+ T_{\bar z\bar{z}}\frac{\partial \bar z}{\partial x}\frac{\partial \bar  z}{\partial y} \\
+         & =i\left(T_{z z}+T_{\bar{z} z}-T_{z \bar{z}}-T_{\bar{z} \bar{z}}\right) \\
+         T_{21}&=i\left(T_{z z}-T_{\bar{z} z}+T_{z \bar{z}}-T_{z \bar{z}}\right)  \\
+         T_{22}&=\left(T_{z \bar{z}}+T_{\bar{z}{z}}\right)-\left(T_{z z}+T_{\bar z \bar z}\right)
+    \end{align}
+\end{frame}
+\begin{frame}{Aside: Symmetric Tensors in $z,\bar{z}$ space}
+    If $T$ is symmetric, $T_{ab}=T_{ab} \Rightarrow T_{ij} = T_{ji}$, so the above simplifies
+    \begin{align}
+        T_{12} = T_{21} = i(T_{zz} - T_{\bar z \bar z})\\
+        T_{11} = 2T_{z\bar z} + (T_{zz} + T_{\bar z \bar z})\\
+        T_{22} = 2T_{z\bar z} - (T_{zz} + T_{\bar z \bar z})
+    \end{align}
+\end{frame}
+\begin{frame}{Aside: Traceless Symmetric Tensors in $z,\bar{z}$ space}
+    If $T$ is symmetric and traceless, and $g^{\alpha\beta}=\text{diag}(1,1)$
+    \begin{align}
+        T_{11} + T_{22} &= 0 \\
+    \end{align}
+    The LHS expressed in $z,\bar z$ coordinates is $4 T_{z\bar z}$, so the traceless condition becomes
+    \begin{align}
+        T_{z\bar z}=0
+    \end{align}
+\end{frame}
+\begin{frame}{Aside: Metric in $z,\bar{z}$ space}
+    In 2D flat Euclidean space, metric $g_{ab} = \text{diag}(1,1)$, and so the inverse metric $g_{ab} = g^{ab}$. This let's us change an upper index to a lower index at will. However, it does NOT hold in the $z,\bar z$ metric (derivation in next slide), and instead
+    \begin{align}
+    g_{i j}{(x, y)}=\left(\begin{array}{ll}
+1 & 0 \\
+0 & 1
+\end{array}\right) \quad g_{a b}{(z, \bar{z})}=\frac{1}{2}\left(\begin{array}{ll}
+0 & 1 \\
+1 & 0
+\end{array}\right) \\
+    g^{i j}{(x, y)}=\left(\begin{array}{ll}
+1 & 0 \\
+0 & 1
+\end{array}\right) \quad g^{a b}{(z, \bar{z})}=2 \left(\begin{array}{ll}
+0 & 1 \\
+1 & 0 
+\end{array}\right) \label{eq:gzz}
+    \end{align}
+\end{frame}
+\begin{frame}{Derivation for $z,\bar{z}$ metric}
+    \begin{align}
+     x&=\frac{1}{2}(z+\bar{z}) \\
+ y&=\frac{1}{2 i}(z-\bar{z}) \\
+g_{z z}&=g_{11}\left(\frac{1}{2}\right)\left(\frac{1}{2 i}\right)+g_{12}\left(\frac{1}{2}\right)\left(\frac{1}{2 i}\right)\\
+&+g_{21}\left(\frac{1}{2 i}\right)\left(\frac{1}{2}\right)+g_{22}\left(\frac{1}{2 i}\right)\left(\frac{1}{2 i}\right) \\
+& =\frac{1}{4}\left(g_{11}-g_{22}\right)-\frac{i}{4}\left(g_{12}+g_{21}\right)  \\
+g_{\bar z z}=g_{z \bar z}&=g_{11}\left(\frac{1}{2}\right)\left(\frac{1}{2}\right)+g_{12}\left(\frac{1}{2}\right)\left(-\frac{1}{2 i}\right)\\
+&+g_{21}\left(\frac{1}{2 i}\right)\left(\frac{1}{2}\right)+g_{22}\left(\frac{1}{2 i}\right)\left(-\frac{1}{2 i}\right)  \\
+& = \frac{1}{4} (g_{11} + g_{22}) + \frac{i}{4} (g_{12} - g_{21})
+    \end{align}
+\end{frame}
+\begin{frame}{Derivation for $z,\bar{z}$ metric}
+    \begin{align}
+g_{\bar z \bar z}&=g_{11}\left(\frac{1}{2}\right)\left(\frac{1}{2}\right)+g_{12}\left(\frac{1}{2}\right)\left(-\frac{1}{2 i}\right)\\&+g_{21}\left(-\frac{1}{2 i}\right)\left(\frac{1}{2}\right)+g_{22}\left(-\frac{1}{2 i}\right)^2 \\
+& =\frac{1}{4}\left(g_{11}-g_{22}\right)+\frac{1}{4}\left(g_{12}+g_{21}\right)
+    \end{align}
+    Substituting $g_{11} = g_{22} = 1, \quad g_{12} = g_{21} = 0$ gives Equation \ref{eq:gzz}.
+    \begin{align}
+    g_{a b}{(z, \bar{z})}=\frac{1}{2}\left(\begin{array}{ll}
+0 & 1 \\
+1 & 0
+\end{array}\right) \\
+\quad g^{a b}{(z, \bar{z})}=2 \left(\begin{array}{ll}
+0 & 1 \\
+1 & 0\end{array}\right)\end{align}
+\end{frame}
+\begin{frame}{Ghost Action in $z,\bar z$ Space}
+    The ghost action is conformally invariant
+    \begin{align}
+        S_{\text {ghost }}&=\frac{-i}{2 \pi} \int d^2 \sigma \sqrt{g} b_{\alpha \beta} \nabla^\alpha c^\beta 
+        \\
+        &= \frac{-i}{2 \pi} \int d^2 \sigma \sqrt{g} g^{\eta\alpha} b_{\alpha \beta} \nabla_\eta c^\beta
+    \end{align}
+    so let's use that to choose a conformally flat metric
+    \begin{align}
+        \hat{g}_{\alpha \beta}&=e^{2 \omega}  \delta_{\alpha\beta}\\
+        \sqrt{\text{det }\hat{g}} &= e^{2\omega}
+    \end{align}
+\end{frame}
+\begin{frame}{Ghost Action}
+    Going to complex coordinates
+    \begin{align}
+z & = x+iy\\
+\bar z & = x-iy\\
+dz \wedge d\bar z &= (dx + idy )\wedge (dx-idy)\\
+&= -2i dx \wedge dy
+    \end{align}
+    The ghost action becomes
+    \begin{align}
+        S_{ghost} &= \frac{1}{4\pi} \int dz\wedge d\bar z\ e^{2\omega} e^{-2\omega} g^{\eta\alpha} (z,\bar z) b_{\alpha\beta } \nabla_{\eta} c^\beta \\
+        &= \frac{1}{4\pi} \int dz\wedge d\bar z\ e^{2\omega} e^{-2\omega} g^{\eta\alpha} b_{\alpha\beta } \nabla_{\eta} c^\beta \\
+        &= \frac{1}{2\pi} \int d^2z\ b_{\bar z \bar{z} } \nabla_{z} c^{\bar z} + z b_{z {z} } \nabla_{\bar z} c^z\\
+    \end{align}
+\end{frame}
+\begin{frame}{Ghost Action}
+    The covariant derivative is just a ordinary derivative in these coordinates since
+    \begin{align}
+        \Gamma_{\bar{z} \alpha}^z=\frac{1}{2} g^{z \bar{z}}( \cancel{\partial_{\bar{z}} g_{\alpha \bar{z}}}+\partial_\alpha \underbrace{g_{\bar{z} \bar{z}}}_0-\cancel{\partial_{\bar{z}} g_{\bar{z} \alpha}})=0 \quad \text { for } \alpha=z, \bar{z}
+    \end{align}
+    Making the definitions 
+    \begin{align}
+        \begin{array}{lll}
+b=b_{z z} & & \bar{b}=b_{\bar{z} \bar{z}} \\
+c=c^z & & \bar{c}=c^{\bar{z}}
+\end{array}
+    \end{align}
+    The ghost action is rewritten more neatly
+    \begin{align}
+        S_{\text {ghost }}=\frac{1}{2 \pi} \int d^2 z(b \bar{\partial} c+\bar{b} \partial \bar{c})
+    \end{align}
+    with Euler Lagrange equations of motion
+    \begin{align}
+        \bar{\partial} b=\partial \bar{b}=\bar{\partial} c=\partial \bar{c}=0
+    \end{align}
+    In other words, $b=b(z)$ and $c=c(z)$ is holomorphic and $\bar{b} = \bar{b}(\bar{z})$ and $\bar{c} = \bar{c}(\bar{z})$ are anti-holomorphic.
+\end{frame}
+\begin{frame}{$bc$ Ghost CFT}
+    The goal is to get the $\hat{T}(z,\bar z)\hat{T}(w,\bar w)$ Operator Product Expansion (OPE). Classically, (derivation is quite involved) the stress tensor for $bc$ theory is
+    \begin{align}
+        T=2(\partial c) b+c \partial b \quad, \quad \bar{T}=2(\bar{\partial} \bar{c}) \bar{b}+\bar{c} \bar{\partial} \bar{b}
+    \end{align}
+    When upgraded to quantum operators, we need to normal order 
+    \begin{align}
+        T=2:(\partial c) b:+:c \partial b: \quad, \quad \bar{T}=2:(\bar{\partial} \bar{c}) \bar{b}:+:\bar{c} \bar{\partial} \bar{b}:
+    \end{align}
+    We can get our $TT$ OPE with a wick contractions among the $\partial b, b, \partial c$ and $c$ fields.
+    \begin{align}
+T(z) T(w)&=4 : \partial c(z) b(z):: \partial c(w) b(w):\\&+2: \partial c(z) b(z):: c(w) \partial b(w): \\
+& +2: c(z) \partial b(z):: \partial c(w) b(w):\\&+: c(z) \partial b(z):: c(w) \partial b(w):
+    \end{align}
+\end{frame}
+\begin{frame}{$bc$ Ghost CFT}
+    We need to find out the $4\times 4=16$ time ordered correlation functions (among $\partial c$, $c$, $\partial b$, $b$). Actually we only need to find $10$ out of $16$ of them because of exchange (anti)symmetry. 
+    \begin{align}
+        A(z)B(w) = - B(w)A(z)
+    \end{align}
+    Moreover, $6$ out of $10$ of them vanish (TODO proven soon).
+    \begin{align}
+        \partial c(z) \partial c(w) = \partial c(z) c(w) = c(z)c(w) = 0\\
+        \partial b(z) \partial b(w) = \partial b(z) b(w) = b(z)b(w) = 0
+    \end{align}
+    Essentially we only need to calculate $4$ OPEs.
+    \begin{align}
+        \partial c(z) b(w) \quad&,\quad \partial c(z) \partial b(w)\\
+        c(z) b(w) \quad&,\quad c(z) \partial b(w)
+    \end{align}
+\end{frame}
+\begin{frame}{$bc$ OPE's}
+    \begin{align}
+    &S_{\text {ghost }}=\frac{1}{2 \pi} \int d^2 z(b \bar{\partial} c+\bar{b} \partial \bar{c})
+    \end{align}
+    Using the fact that path integral of total derivative is $0$,
+    \begin{align}
+        0&=\int \mathcal{D} b \mathcal{D} c\ \frac{\delta}{\delta b(z)}\left[e^{-S_{\text {ghost }}} b\left(w\right)\right]\\&=\int \mathcal{D} b \mathcal{D} c\ e^{-S_{\text {ghost }}}\left[-\frac{1}{2 \pi} \bar{\partial} c(z) b\left(w\right)+\delta\left(z-w, \bar z - \bar w \right)\right] \notag
+    \end{align}
+    The following is true (operator equations are always implicitly inside time ordered correlators / inside the path integral)
+    \begin{align}
+        &\bar{\partial} c(z) b\left(w\right)=2\pi \delta\left(z-w,\bar z - \bar w \right)
+    \end{align}
+    The RHS is called the contact term between operators.
+\end{frame}
+\begin{frame}{Integrating $(\bar \partial c) b$ to get $cb$}
+    Using the identity (can be proven using Stoke's theorem)
+    \begin{align}
+        \partial_{\bar{z}} \frac{1}{z} = 2\pi \delta \paren{z, \bar z}
+    \end{align}
+    We get $cb$ OPE
+    \begin{align}
+        c(z)b(w) = \frac{1}{z-w} + ...
+    \end{align}
+    Differentiating this in multiple ways gives us all the OPEs we need
+    \begin{align}
+        c(z)b(w) &= \frac{1}{z-w} + ... \\
+        c(z) \partial b(w) &= \frac{1}{(z-w)^2} + ... \\
+        \partial c(z) b(w) &= -\frac{1}{(z-w)^2} + ... \\
+        \partial c(z) \partial b(w) &= -\frac{2}{(z-w)^3} + ... 
+    \end{align}
+\end{frame}
+\begin{frame}{Evaluating $TT$ OPE}
+    We perform Wick's theorem in detail for one of the terms
+    \begin{align}
+        &\quad\ 4 : \partial c(z) b(z):: \partial c(w) b(w): \\
+        &=  4\langle b(z) \partial c(w)\rangle\langle\partial c(z) b(w)\rangle \\
+& \quad\ +4: \partial c(z) b(w):\langle b(z) \partial c(w)\rangle \\
+& \quad\  +4: b(z) \partial c(w):\langle\partial c(z) b(w)\rangle \\
+& \quad\  +4: \partial c(z) b(z) \partial c(w) b(w): \\
+& = -\frac{4}{(z-w)^4}+\frac{4: \partial c(z) b(w):}{(z-w)^2} - \frac{4: b(z) \partial c(w):}{(z-w)^2}\\&+4: \partial c(z) b(z) \partial c(w) b(w):
+    \end{align}
+\end{frame}
+\begin{frame}{Evaluating $TT$ OPE}
+    All 4 terms are
+%      \begin{align}
+%     \small
+%   & 4 : \partial c(z) b(z):: \partial c(w) b(w): \\&=-\frac{4}{(z-w)^4}+\frac{4: \partial c(z) b(w):}{(z-w)^2} - \frac{4: b(z) \partial c(w):}{(z-w)^2} + \ldots \\
+% &2: \partial c(z) b(z):: c(w) \partial b(w):\\& =-\frac{4}{(z-w)^4}+\frac{2: \partial c(z) \partial b(w):}{z-w}-\frac{4: b(z) c(w):}{(z-w)^3} +\ldots \\
+% &2: c(z) \partial b(z):: \partial c(w) b(w):\\& =-\frac{4}{(z-w)^4}-\frac{4: c(z) b(w):}{(z-w)^3}+\frac{2: \partial b(z) \partial c(w):}{z-w} +\ldots \\
+% &: c(z) \partial b(z):: c(w) \partial b(w):\\& =-\frac{1}{(z-w)^4}-\frac{: c(z) \partial b(w):}{(z-w)^2}+\frac{\partial b(z) c(w):}{(z-w)^2}+\ldots
+%     \end{align}
+    \resizebox{\hsize}{!}{
+    $$4 : \partial c(z) b(z):: \partial c(w) b(w): &=-\frac{4}{(z-w)^4}+\frac{4: \partial c(z) b(w):}{(z-w)^2} - \frac{4: b(z) \partial c(w):}{(z-w)^2} + \ldots$$
+    }
+    \resizebox{\hsize}{!}{
+    $$2 : \partial c(z) b(z):: c(w) \partial b(w):& =-\frac{4}{(z-w)^4}+\frac{2: \partial c(z) \partial b(w):}{z-w}-\frac{4: b(z) c(w):}{(z-w)^3} +\ldots$$}
+    \resizebox{\hsize}{!}{
+    $$2: c(z) \partial b(z):: \partial c(w) b(w):& =-\frac{4}{(z-w)^4}-\frac{4: c(z) b(w):}{(z-w)^3}+\frac{2: \partial b(z) \partial c(w):}{z-w} +\ldots $$}
+    \resizebox{\hsize}{!}{
+    $$: c(z) \partial b(z):: c(w) \partial b(w):& =-\frac{1}{(z-w)^4}-\frac{: c(z) \partial b(w):}{(z-w)^2}+\frac{\partial b(z) c(w):}{(z-w)^2}+\ldots$$}
+%   4 : \partial c(z) b(z):: \partial c(w) b(w): &=-\frac{4}{(z-w)^4}+\frac{4: \partial c(z) b(w):}{(z-w)^2} - \frac{4: b(z) \partial c(w):}{(z-w)^2} + \ldots \\
+%   2: \partial c(z) b(z):: c(w) \partial b(w):& =-\frac{4}{(z-w)^4}+\frac{2: \partial c(z) \partial b(w):}{z-w}-\frac{4: b(z) c(w):}{(z-w)^3} +\ldots \\
+% 2: c(z) \partial b(z):: \partial c(w) b(w):& =-\frac{4}{(z-w)^4}-\frac{4: c(z) b(w):}{(z-w)^3}+\frac{2: \partial b(z) \partial c(w):}{z-w} +\ldots \\
+% : c(z) \partial b(z):: c(w) \partial b(w):& =-\frac{1}{(z-w)^4}-\frac{: c(z) \partial b(w):}{(z-w)^2}+\frac{\partial b(z) c(w):}{(z-w)^2}+\ldots
+    % \end{align}}
+    \newline \\
+    Summing it all up,
+    \begin{align}
+        T(z) T(w)=\frac{-13}{(z-w)^4}+\frac{2 T(w)}{(z-w)^2}+\frac{\partial T(w)}{z-w}+\ldots
+    \end{align}
+\end{frame}
+\begin{frame}{CFT Central Charge}
+    \begin{align}
+        T(z) T(w)=\frac{-13}{(z-w)^4}+\frac{2 T(w)}{(z-w)^2}+\frac{\partial T(w)}{z-w}+\ldots
+    \end{align}
+    We know that in $bc$ ghost CFT, the $TT$ expansion takes the above form. It turns out that in general ALL CFTs, the $TT$ expansion takes the form
+    \begin{align}
+        T(z) T(w)=\frac{c/2}{(z-w)^4}+\frac{2 T(w)}{(z-w)^2}+\frac{\partial T(w)}{z-w}+\ldots
+    \end{align}
+    where $c$ is called the central charge of that CFT. So for the $bc$ ghost CFT, $c=-26$.  
+\end{frame}
+\begin{frame}{More Examples of Central Charge}
+    \begin{align}
+        S&=\frac{1}{4 \pi \alpha^{\prime}} \int d^2 \sigma \partial_\alpha X \partial^\alpha X \text{ has } c=1\\
+        S&=\frac{1}{4 \pi \alpha^{\prime}} \int d^2 \sigma \sum_{i=1}^{n} \partial_\alpha X_i \partial^\alpha X_i \text{ has } c=n\\
+        S_{\text {Poly }}&=\frac{1}{4 \pi \alpha^{\prime}} \int d^2 \sigma \sqrt{g} g^{\alpha \beta} \partial_\alpha X^\mu \partial_\beta X^\nu \delta_{\mu \nu}
+    \end{align}
+    has central charge $c=$ (dimensions of space-time the string lives in).
+\end{frame}
+\begin{frame}{Central Charges Add Up}
+    If I have 2 (2-dimensional) conformal field theories $S_A, S_B$, if $A, B$ has central charge $c_A, c_B$ respectively, then their combined action $S_C=S_A + S_B$ has central charge $c_A + c_B$. This can be observed by examining the $(z-w)^{-4}$ term in the $TT$ OPE. 
+    \begin{align}
+        T_C(z) T_C(w) &= (T_A(z) + T_B(z)) (T_A(w) + T_B(w)) \\
+        &=T_A(z) T_A(w) + \cancel{T_B(z)T_A(w)} \\ &+ T_B(z) T_B(w) + \cancel{T_A(z)T_B(w)}
+    \end{align}
+    The reason for the vanishing of $T_A(z) T_B(w)$ is because
+    \begin{align}
+        0 &= \int DX_A DX_B \ \frac{\delta}{\delta \mathcal{O}_A(z)} e^{-S_A-S_B} \mathcal{O}_B(w) \\
+        &= \int DX_A DX_B \ e^{-S_A-S_B} \paren{-\frac{\delta S_A}{\delta \mathcal{O}_A(z)} \mathcal{O}_B(w) + \cancel{\frac{\delta\mathcal{O}_B(w)}{\delta \mathcal{O}_A(z)} } }
+    \end{align}
+    Basically there isn't any contact terms $\delta(z-w, \bar z -\bar w)$ so any OPE between the two theories is 0.
+\end{frame}
+\begin{frame}{Weyl Anomaly}
+    It turns out that we need the total central charge $c$ of our CFT to be 0 for it to be physically meaningful, because nonzero $c$ causes Weyl Anomaly.
+    \begin{align}
+        \langle {T^\alpha}_\alpha \rangle = -\frac{c}{12} R
+    \end{align}
+    Derivation is in the appendix. 
+\end{frame}
+\begin{frame}{Summary}
+    In summary, to quantise the Polyakov action for a bosonic string, we had to insert the Faddeev-Popov determinant into the path integral, which ended up being calculated by the $bc$ ghost CFT. $bc$ CFT alone had central charge of $-26$, but we need the total central charge of Polyakov + $bc$ to be $0$ due to the Weyl anomaly. So the Polyakov action needed to have a "critical central charge" of 26, which corresponded to the coordinates of the string being 26-dimensional. 
+\end{frame}
+\begin{frame}{Appendix A}
+    Let's derive the Weyl anomaly.
+\end{frame}
+\begin{frame}{Stress Tensor}
+    Conservation of energy and momentum is $\partial_\mu T^{\mu \nu} = 0$. Let's express this in complex coordinates. Previously we derived the following for traceless symmetric tensors
+    \begin{align}
+& T_{12}=T_{21}=i\left(T_{z z}-T_{\bar{z} \bar{z}}\right) \\
+& T_{11}=\cancel{2 T_{z \bar{z}}}+\left(T_{z z}+T_{\bar{z} \bar{z}}\right) \\
+& T_{22}=\cancel{2 T_{z \bar{z}}}-\left(T_{z z}+T_{\bar{z} \bar{z}}\right)
+    \end{align}
+    The cancellation is due to $T_{z\bar{z}}=0$ (traceless condition).
+\end{frame}
+
+\begin{frame}{Conservation}
+    Let $T$ be the energy-momentum tensor, then we have $\partial^\mu T_{\mu \nu} = 0$. In complex coordinates,
+    \begin{align}
+0 = \partial^\mu T_{\mu 2}& = \partial^{1} T_{12}+\partial^2 T_{22} \\
+& = \partial_{1} T_{12}+\partial_2 T_{22} \\
+& =(\partial+\bar{\partial}) i\left(T_{z z}-T_{\bar{z} \bar{z}}\right) \\
+& \quad +i(\partial-\bar{\partial})\left(T_{z z}+T_{\bar{z} \bar{z}}\right) \\
+& =i\left(\partial T_{z z}-\partial T_{\bar{z} \bar{z}}+\bar{\partial}T_{\bar{z}\bar z}-\bar{\partial} T_{\bar{z} \bar{z}} \right. \\
+& \quad -\partial T_{z {z}}-\partial T_{\bar{z} \bar{z}} \left. +\bar{\partial} T_{z z}+\bar{\partial} T_{\bar{z} \bar{z}} \right)\\
+& =2 i\left(\bar{\partial} T_{z z}+\partial T_{z \bar{z}}-\bar{\partial} T_{z \bar{z}}-\partial T_{\bar{z} \bar{z}}\right) \\
+0 & = \bar{\partial} T_{z z}+\partial T_{z \bar{z}}-\bar{\partial} T_{z \bar{z}}-\partial T_{\bar{z} \bar{z}}
+\end{align}
+\end{frame}
+\begin{frame}{Conservation}
+    \begin{align}
+    0 = \partial^\mu T_{\mu 1} &=\partial^1 T_{11} + \partial^2 T_{21} \\
+&= \partial_1 T_{11} + \partial_2 T_{21}\\
+&=(\partial + \bar \partial) (2 T_{z\bar z} + (T_{zz} + T_{\bar z \bar z }))\\
+&+i(\partial - \bar \partial) i(T_{zz} - T_{\bar z \bar z })\\
+&=+ \partial T_{zz} + \partial T_{\bar z \bar z} + \bar \partial T_{zz} + \bar \partial T_{\bar z \bar z}\\
+&\quad -\partial T_{zz}+\partial T_{\bar z \bar z}+\bar \partial T_{zz}-\bar \partial T_{\bar z \bar z}\\
+&=2\left( \partial T_{z\bar z} + \partial T_{\bar z \bar z} + \bar \partial T_{z \bar z} + \bar \partial T_{zz} \right)\\
+0&=\partial T_{z\bar z} + \partial T_{\bar z \bar z} + \bar \partial T_{z \bar z} + \bar \partial T_{zz}
+    \end{align}
+    Putting both together yields conservation of energy-momentum in complex coordinates
+    \begin{align}
+& \bar{\partial} T_{z z}+\partial T_{z \bar{z}}=0 \text{ (we will use this)}\\
+& \partial T_{\bar{z} \bar{z}}+\bar \partial {T}_{{z} \bar{z}}=0 
+    \end{align}
+\end{frame}
+\begin{frame}{$T_{z\bar z} T_{w \bar w}$ OPE}
+    Now we can obtain the $\partial T_{z\bar z} \partial T_{w \bar w}$ OPE from the $T_{zz}T_{ww}$ OPE,
+    \begin{align}
+        \partial_z T_{z \bar{z}}(z, \bar{z}) \partial_w T_{w \bar{w}}(w, \bar{w})&=\bar{\partial}_{\bar{z}} T_{z z}(z, \bar{z}) \bar{\partial}_{\bar{w}} T_{w w}(w, \bar{w})\\&=\bar{\partial}_{\bar{z}} \bar{\partial}_{\bar{w}}\left[\frac{c / 2}{(z-w)^4}+\ldots\right] \label{eq:tzztww}
+    \end{align}
+    We need to evaluate Equation \ref{eq:tzztww}
+    \begin{align}
+        \bar{\partial}_{\bar{z}} \bar{\partial}_{\bar{w}} \frac{1}{(z-w)^4}=\frac{1}{6} \bar{\partial}_{\bar{z}} \bar{\partial}_{\bar{w}}\left(\partial_z^2 \partial_w \frac{1}{z-w}\right)
+    \end{align}
+    Using $\bar{\partial}_{\bar{z}} \frac{1}{z-w}=2 \pi \delta(z-w, \bar{z}-\bar{w})$ (Stoke's),
+    \begin{align}
+        \frac{1}{6} \bar{\partial}_{\bar{z}} \bar{\partial}_{\bar{w}}\left(\partial_z^2 \partial_w \frac{1}{z-w}\right)=\frac{\pi}{3} \partial_z^2 \partial_w \bar{\partial}_{\bar{w}} \delta(z-w, \bar{z}-\bar{w})
+    \end{align}
+    So our $T_{z\bar z} T_{w \bar w}$ OPE is
+    \begin{align}
+        T_{z \bar{z}}(z, \bar{z}) T_{w \bar{w}}(w, \bar{w})=\frac{c\pi}{6} \partial_z \bar{\partial}_{\bar{w}} \delta(z-w, \bar{z}-\bar{w})
+    \end{align}
+\end{frame}
+\begin{frame}{Calculating $\delta\left\langle {T^\alpha}_\alpha(\sigma)\right\rangle$}
+We know that scale in flat space, scale invariance causes $\langle {T^\alpha}_\alpha\rangle = 0$. Let's vary $\delta\left\langle {T^\alpha}_\alpha(\sigma)\right\rangle$ with respect to the any general variation of the metric $\delta g_{\alpha\beta}$ away from flat space
+    \begin{align}
+\delta\left\langle {T^\alpha}_\alpha(\sigma)\right\rangle & =\delta \int \mathcal{D} \phi e^{-S} {T^\alpha}_\alpha(\sigma) \\
+&|\quad \text{Using }T_{\beta \gamma}\equiv-\frac{4\pi}{\sqrt{g}} \frac{\delta S_{\text {matter }}}{\delta g^{\beta \gamma}} \notag \\
+& =\frac{1}{4 \pi} \int \mathcal{D} \phi e^{-S}\left({T^\alpha}_\alpha(\sigma) \int d^2 \sigma^{\prime} \sqrt{g} \delta g^{\beta \gamma} T_{\beta \gamma}\left(\sigma^{\prime}\right)\right) \notag
+    \end{align}
+    If we restrict the variation of the metric to a conformal transformation, the metric varies as $\delta g_{\alpha \beta} = 2\omega \delta_{\alpha\beta}$, and the inverse metric $\delta g^{\alpha\beta} = -2\omega \delta^{\alpha\beta}$. This gives
+    \begin{align}
+        \delta\left\langle {T^\alpha}_\alpha(\sigma)\right\rangle=-\frac{1}{2 \pi} \int \mathcal{D} \phi e^{-S}\left({T^\alpha}_\alpha(\sigma) \int d^2 \sigma^{\prime} \omega\left(\sigma^{\prime}\right) {T^\beta}_\beta\left(\sigma^{\prime}\right)\right) \notag
+    \end{align}
+\end{frame}
+\begin{frame}{Calculating $\left\langle {T^\alpha}_\alpha(\sigma)\right\rangle$}
+    Substituting in the OPE with the correct factors
+    \begin{align}
+        {T^\alpha}_\alpha(\sigma) {T^\beta}_\beta\left(\sigma^{\prime}\right)&=16 T_{z \bar{z}}(z, \bar{z}) T_{w \bar{w}}(w, \bar{w})\\
+        8 \partial_z \bar{\partial}_{\bar{w}} \delta(z-w, \bar{z}-\bar{w})&=-\partial^2 \delta\left(\sigma-\sigma^{\prime}\right)
+    \end{align}
+    yields the following
+    \begin{align}
+        \delta\left\langle {T^\alpha}_\alpha\right\rangle=\frac{c}{6} \partial^2 \omega &\Rightarrow\left\langle {T^\alpha}_\alpha\right\rangle=-\frac{c}{12} R
+    \end{align}
+    Even though we are working infinitesimally, the RHS remains true for general 2D surfaces.
+\end{frame}
+\end{document} 
