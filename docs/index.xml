@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+      <title>🪴 Quartz 4.0</title>
+      <link>https://quartz.jzhao.xyz</link>
+      <description>Last 10 notes on 🪴 Quartz 4.0</description>
+      <generator>Quartz -- quartz.jzhao.xyz</generator>
+      <item>
+    <title>Čech Cohomology for Physicists</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-05-02-cech</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-05-02-cech</guid>
+    <description>Our motivation comes from wanting to put Spinors on Curved Spacetime (an upcoming blog) Theorem: A spin structure on an orientable Riemannian manifold exists iff the second Stiefel-Whitney ...</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:17 GMT</pubDate>
+  </item><item>
+    <title>Ehresmann Connection and Gauge Theory</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-04-27-ehresmann</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-04-27-ehresmann</guid>
+    <description>Ehressmann Connection tldr; Connections on Fiber bundles are are specified by vertical bundle-valued one-forms One might be familiar with the connection as the Christoffel symbols ...</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:17 GMT</pubDate>
+  </item><item>
+    <title>Koszul Connection and Covariant Derivative</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-04-28-covariant-derivative</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-04-28-covariant-derivative</guid>
+    <description>Good Resources Wiki: associated bundle, Koszul connection Frederic Schuller Lectures 19-25, specifically 23 for this blog Nakahara Chapter 10.4 We mostly follow the notation ...</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:17 GMT</pubDate>
+  </item><item>
+    <title>Custom Binaries on AWS Lambda + Poking Around (Bonus)</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-12-28-aws-lambda-bash</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-12-28-aws-lambda-bash</guid>
+    <description>AWS Lambda is a serverless computing platform that allows you to run code without provisioning or managing servers. It is a great way to run code without having to worry about the underlying infrastructure.</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:17 GMT</pubDate>
+  </item><item>
+    <title>Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-03-06-ssl</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-03-06-ssl</guid>
+    <description>Btw, I will guide you in setting up SSL for any site for $25 (around 1h meeting online), contact me at @tch1001 and save yourself alot of pain in the ass :) Today, I will show you how to setup ...</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:17 GMT</pubDate>
+  </item><item>
+    <title>Reviewing Renormalization Resources (in QFT)</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2024-01-07-renormalization</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2024-01-07-renormalization</guid>
+    <description>There are many resources on renormalization in Quantum Field Theory (QFT). I have been reading a few of them and I will review them here. This is roughly in the order I recommend reading them (as a complete beginner), with the first few being the best.</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:16 GMT</pubDate>
+  </item><item>
+    <title>Adding Users to Kubernetes (RBAC)</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-03-14-rbac</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-03-14-rbac</guid>
+    <description>Btw, I offer hosting services (FREE if your project is open source and I like it!) and DevOps setup for small businesses or personal projects! Contact me on telegram @tch1001 any time ...</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:16 GMT</pubDate>
+  </item><item>
+    <title>Fun with QEMU Arguments and Character Devices</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-10-05-qemu</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-10-05-qemu</guid>
+    <description>If you do man qemu-system and search for -serial you would come across a good explanation of how the qemu terminal emulation works. Let’s have abit of fun with it.</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:16 GMT</pubDate>
+  </item><item>
+    <title>My Kernel Notes (Old)</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-08-13-kernel-notes</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-08-13-kernel-notes</guid>
+    <description>I had some notes from a while back, here is a dump of them. It is very disorganised and not meant to be pedagogical. my kernel exploration Run the following as root make insmod hello-1.ko dmesg -w # preferably in another window rmmod hello-1.ko make clean git status for the char device testing make test ./cdev_test make clean For inverting screen colors apt install libx11-dev libxxf86vm-dev libxrandr-dev make invert If things don’t work, try sudo systemctl restart display-manager xhost + Writing assembly gcc -S helloworld.c # compiler vim helloworld.s # modify stuff gcc helloworld.s # assembler and linker ./a.out Compile the kernel Method 1 (worked for me) # download from kernel.org apt install -y libncurses5 libncurses5-dev bison flex make menuconfig vim .config # remove debian things apt install -y libssl-dev libelf-dev make -j2 make modules_install make install Method 2 (didn’t work for me) apt-get source linux-image-`uname -r` cd folder fakeroot debian/rules clean Cross compiling the kernel Getting binutils and gcc from apt Do this if you’re a noob apt-get install binutils-riscv64-linux-gnu gcc-riscv64-linux-gnu riscv64-linux-gnu-ld --version riscv64-linux-gnu-gcc --version Building binutils from source export TARGET=aarch64-unknown-linux-gnu # replace with your intended target export PREFIX=&quot;$HOME/opt/cross/aarch64&quot; # replace with your intended path export PATH=&quot;$PREFIX/bin:$PATH&quot; wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.xz tar -xf binutils-2.29.1.tar.xz cd binutils-2.29.1 ./configure \ --target=$TARGET \ --prefix=$PREFIX \ --with-sysroot \ --disable-nls \ --disable-werror make make install $TARGET-ld --version Cross compiling the kernel make ARCH=riscv O=kernel_build defconfig export TARGET=aarch64-unknown-linux-gnu- make ARCH=riscv CROSS_COMPILE=$TARGET modules Contributing to mailing list git clone --depth=1 git.kernel.org/pub/scm/linux/kernel/git/bluetooth/bluetooth-next.git/ cd bluetooth-next # compile kernel as per usual git checkout &lt;for-next&gt; # obtain patch from email git am update.patch patch -p1 &lt; update.patch # do this cos git apply doesnt work (insert 1h of vulgarities) git am --continue Make our initramfs Either use $ mkinitramfs -o ramdisk.img # doesn&#039;t work right now OR make your own $ mkdir vfs &amp;&amp; cd vfs $ cat &lt;&lt; EOF &gt; hello-kernel.c #include &lt;stdio.h&gt; int main(){ printf(&quot;Hello, kernel!\n&quot;); sleep(9999999999999); } EOF $ gcc --static hello-kernel.c -o init $ find .</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:16 GMT</pubDate>
+  </item><item>
+    <title>Compiling and Running a Minimal Kernel with Busybox</title>
+    <link>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-01-31-minimal-kernel</link>
+    <guid>https://quartz.jzhao.xyz/old-blogs-(jekyll)/2023-01-31-minimal-kernel</guid>
+    <description>The exploration logs are found at here. Building the Kernel Of course the small kernel must still be functional, so we will test it using qemu. One can also use virtualbox but I chose qemu because I will be working remotely using SSH and VNC takes too much mobile data lol.</description>
+    <pubDate>Mon, 15 Jul 2024 19:28:16 GMT</pubDate>
+  </item>
+    </channel>
+  </rss>

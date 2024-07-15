@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>My Kernel Notes (Old)</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="My Kernel Notes (Old)"/><meta property="og:description" content="I had some notes from a while back, here is a dump of them. It is very disorganised and not meant to be pedagogical. my kernel exploration Run the following as root make insmod hello-1.ko dmesg -w # preferably in another window rmmod hello-1.ko make clean git status for the char device testing make test ./cdev_test make clean For inverting screen colors apt install libx11-dev libxxf86vm-dev libxrandr-dev make invert If things don’t work, try sudo systemctl restart display-manager xhost + Writing assembly gcc -S helloworld.c # compiler vim helloworld.s # modify stuff gcc helloworld.s # assembler and linker ./a.out Compile the kernel Method 1 (worked for me) # download from kernel.org apt install -y libncurses5 libncurses5-dev bison flex make menuconfig vim .config # remove debian things apt install -y libssl-dev libelf-dev make -j2 make modules_install make install Method 2 (didn’t work for me) apt-get source linux-image-`uname -r` cd folder fakeroot debian/rules clean Cross compiling the kernel Getting binutils and gcc from apt Do this if you’re a noob apt-get install binutils-riscv64-linux-gnu gcc-riscv64-linux-gnu riscv64-linux-gnu-ld --version riscv64-linux-gnu-gcc --version Building binutils from source export TARGET=aarch64-unknown-linux-gnu # replace with your intended target export PREFIX=&amp;quot;$HOME/opt/cross/aarch64&amp;quot; # replace with your intended path export PATH=&amp;quot;$PREFIX/bin:$PATH&amp;quot; wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.xz tar -xf binutils-2.29.1.tar.xz cd binutils-2.29.1 ./configure \ --target=$TARGET \ --prefix=$PREFIX \ --with-sysroot \ --disable-nls \ --disable-werror make make install $TARGET-ld --version Cross compiling the kernel make ARCH=riscv O=kernel_build defconfig export TARGET=aarch64-unknown-linux-gnu- make ARCH=riscv CROSS_COMPILE=$TARGET modules Contributing to mailing list git clone --depth=1 git.kernel.org/pub/scm/linux/kernel/git/bluetooth/bluetooth-next.git/ cd bluetooth-next # compile kernel as per usual git checkout &amp;lt;for-next&amp;gt; # obtain patch from email git am update.patch patch -p1 &amp;lt; update.patch # do this cos git apply doesnt work (insert 1h of vulgarities) git am --continue Make our initramfs Either use $ mkinitramfs -o ramdisk.img # doesn&amp;#039;t work right now OR make your own $ mkdir vfs &amp;amp;&amp;amp; cd vfs $ cat &amp;lt;&amp;lt; EOF &amp;gt; hello-kernel.c #include &amp;lt;stdio.h&amp;gt; int main(){ printf(&amp;quot;Hello, kernel!\n&amp;quot;); sleep(9999999999999); } EOF $ gcc --static hello-kernel.c -o init $ find ."/><meta property="og:image" content="https://quartz.jzhao.xyz/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="I had some notes from a while back, here is a dump of them. It is very disorganised and not meant to be pedagogical. my kernel exploration Run the following as root make insmod hello-1.ko dmesg -w # preferably in another window rmmod hello-1.ko make clean git status for the char device testing make test ./cdev_test make clean For inverting screen colors apt install libx11-dev libxxf86vm-dev libxrandr-dev make invert If things don’t work, try sudo systemctl restart display-manager xhost + Writing assembly gcc -S helloworld.c # compiler vim helloworld.s # modify stuff gcc helloworld.s # assembler and linker ./a.out Compile the kernel Method 1 (worked for me) # download from kernel.org apt install -y libncurses5 libncurses5-dev bison flex make menuconfig vim .config # remove debian things apt install -y libssl-dev libelf-dev make -j2 make modules_install make install Method 2 (didn’t work for me) apt-get source linux-image-`uname -r` cd folder fakeroot debian/rules clean Cross compiling the kernel Getting binutils and gcc from apt Do this if you’re a noob apt-get install binutils-riscv64-linux-gnu gcc-riscv64-linux-gnu riscv64-linux-gnu-ld --version riscv64-linux-gnu-gcc --version Building binutils from source export TARGET=aarch64-unknown-linux-gnu # replace with your intended target export PREFIX=&amp;quot;$HOME/opt/cross/aarch64&amp;quot; # replace with your intended path export PATH=&amp;quot;$PREFIX/bin:$PATH&amp;quot; wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.xz tar -xf binutils-2.29.1.tar.xz cd binutils-2.29.1 ./configure \ --target=$TARGET \ --prefix=$PREFIX \ --with-sysroot \ --disable-nls \ --disable-werror make make install $TARGET-ld --version Cross compiling the kernel make ARCH=riscv O=kernel_build defconfig export TARGET=aarch64-unknown-linux-gnu- make ARCH=riscv CROSS_COMPILE=$TARGET modules Contributing to mailing list git clone --depth=1 git.kernel.org/pub/scm/linux/kernel/git/bluetooth/bluetooth-next.git/ cd bluetooth-next # compile kernel as per usual git checkout &amp;lt;for-next&amp;gt; # obtain patch from email git am update.patch patch -p1 &amp;lt; update.patch # do this cos git apply doesnt work (insert 1h of vulgarities) git am --continue Make our initramfs Either use $ mkinitramfs -o ramdisk.img # doesn&amp;#039;t work right now OR make your own $ mkdir vfs &amp;amp;&amp;amp; cd vfs $ cat &amp;lt;&amp;lt; EOF &amp;gt; hello-kernel.c #include &amp;lt;stdio.h&amp;gt; int main(){ printf(&amp;quot;Hello, kernel!\n&amp;quot;); sleep(9999999999999); } EOF $ gcc --static hello-kernel.c -o init $ find ."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="old-blogs-(jekyll)/2023-08-13-kernel-notes"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">🪴 Quartz 4.0</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;blockchain&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blogs-(jekyll)&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="blockchain"><button class="folder-button"><span class="folder-title">blockchain</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="blockchain"><li><a href="../blockchain/Builder-Markets" data-for="blockchain/Builder-Markets">Builder Markets</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blogs-(jekyll)"><button class="folder-button"><span class="folder-title">old blogs (jekyll)</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blogs-(jekyll)"><li><a href="../old-blogs-(jekyll)/2023-03-14-rbac" data-for="old-blogs-(jekyll)/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blogs-(jekyll)/2023-05-02-cech" data-for="old-blogs-(jekyll)/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-minimal-kernel" data-for="old-blogs-(jekyll)/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blogs-(jekyll)/2023-02-28-susy" data-for="old-blogs-(jekyll)/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blogs-(jekyll)/2023-12-28-aws-lambda-bash" data-for="old-blogs-(jekyll)/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blogs-(jekyll)/2023-04-27-ehresmann" data-for="old-blogs-(jekyll)/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-10-05-qemu" data-for="old-blogs-(jekyll)/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blogs-(jekyll)/2023-04-28-covariant-derivative" data-for="old-blogs-(jekyll)/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blogs-(jekyll)/2023-06-22-expander" data-for="old-blogs-(jekyll)/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-kernel-notes" data-for="old-blogs-(jekyll)/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blogs-(jekyll)/2023-02-22-Tphi-OPE" data-for="old-blogs-(jekyll)/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-xv6" data-for="old-blogs-(jekyll)/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blogs-(jekyll)/2023-02-19-propagator" data-for="old-blogs-(jekyll)/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blogs-(jekyll)/2024-01-07-renormalization" data-for="old-blogs-(jekyll)/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blogs-(jekyll)/2023-03-06-ssl" data-for="old-blogs-(jekyll)/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-06-20-ssl-2" data-for="old-blogs-(jekyll)/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-03-29-special-relativity" data-for="old-blogs-(jekyll)/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-teaching-qft" data-for="old-blogs-(jekyll)/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-02-27-weylanomaly" data-for="old-blogs-(jekyll)/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../old-blogs-(jekyll)/">old blogs (jekyll)</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>My Kernel Notes (Old)</a></div></nav><h1 class="article-title">My Kernel Notes (Old)</h1><p show-comma="true" class="content-meta"><span>Jul 16, 2024</span><span>5 min read</span></p></div></div><article class="popover-hint"><p>I had some notes from a while back, here is a dump of them. It is very disorganised and not meant to be pedagogical.</p>
+<h1 id="my-kernel-exploration">my kernel exploration<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#my-kernel-exploration" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>Run the following as root</p>
+<pre><code>make
+insmod hello-1.ko
+dmesg -w # preferably in another window
+rmmod hello-1.ko
+make clean
+git status
+</code></pre>
+<h1 id="for-the-char-device-testing">for the char device testing<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#for-the-char-device-testing" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<pre><code>make test
+./cdev_test
+make clean
+</code></pre>
+<h1 id="for-inverting-screen-colors">For inverting screen colors<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#for-inverting-screen-colors" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<pre><code>apt install libx11-dev libxxf86vm-dev libxrandr-dev
+make invert
+</code></pre>
+<p>If things don’t work, try</p>
+<pre><code>sudo systemctl restart display-manager
+xhost +
+</code></pre>
+<h1 id="writing-assembly">Writing assembly<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#writing-assembly" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<pre><code>gcc -S helloworld.c # compiler
+vim helloworld.s # modify stuff
+gcc helloworld.s # assembler and linker
+./a.out
+</code></pre>
+<h1 id="compile-the-kernel">Compile the kernel<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#compile-the-kernel" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="method-1-worked-for-me">Method 1 (worked for me)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#method-1-worked-for-me" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code># download from kernel.org
+apt install -y libncurses5 libncurses5-dev bison flex
+make menuconfig
+vim .config # remove debian things
+apt install -y libssl-dev libelf-dev
+make -j2
+make modules_install
+make install
+</code></pre>
+<h2 id="method-2-didnt-work-for-me">Method 2 (didn’t work for me)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#method-2-didnt-work-for-me" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>apt-get source linux-image-`uname -r`
+cd folder
+fakeroot debian/rules clean
+</code></pre>
+<h1 id="cross-compiling-the-kernel">Cross compiling the kernel<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cross-compiling-the-kernel" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="getting-binutils-and-gcc-from-apt">Getting binutils and gcc from apt<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#getting-binutils-and-gcc-from-apt" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Do this if you’re a noob</p>
+<pre><code>apt-get install binutils-riscv64-linux-gnu gcc-riscv64-linux-gnu
+riscv64-linux-gnu-ld --version
+riscv64-linux-gnu-gcc --version
+</code></pre>
+<h2 id="building-binutils-from-source">Building binutils from source<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#building-binutils-from-source" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>export TARGET=aarch64-unknown-linux-gnu     # replace with your intended target
+export PREFIX=&quot;$HOME/opt/cross/aarch64&quot;     # replace with your intended path
+export PATH=&quot;$PREFIX/bin:$PATH&quot;
+wget ftp://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.xz 
+tar -xf binutils-2.29.1.tar.xz
+cd binutils-2.29.1
+./configure \
+  --target=$TARGET \
+  --prefix=$PREFIX \
+  --with-sysroot \
+  --disable-nls \
+  --disable-werror
+make 
+make install
+$TARGET-ld --version
+</code></pre>
+<h2 id="cross-compiling-the-kernel-1">Cross compiling the kernel<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cross-compiling-the-kernel-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>make ARCH=riscv O=kernel_build defconfig
+export TARGET=aarch64-unknown-linux-gnu-     
+make ARCH=riscv CROSS_COMPILE=$TARGET modules
+</code></pre>
+<h2 id="contributing-to-mailing-list">Contributing to mailing list<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#contributing-to-mailing-list" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>git clone --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/bluetooth/bluetooth-next.git/
+cd bluetooth-next
+# compile kernel as per usual
+git checkout &lt;for-next>
+# obtain patch from email
+git am update.patch
+patch -p1 &lt; update.patch # do this cos git apply doesnt work (insert 1h of vulgarities)
+git am --continue
+</code></pre>
+<h3 id="make-our-initramfs">Make our initramfs<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#make-our-initramfs" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Either use</p>
+<pre><code>$ mkinitramfs -o ramdisk.img # doesn't work right now
+</code></pre>
+<p>OR make your own</p>
+<pre><code>$ mkdir vfs &amp;&amp; cd vfs
+$ cat &lt;&lt; EOF > hello-kernel.c
+#include &lt;stdio.h>
+
+int main(){
+        printf(&quot;Hello, kernel!\n&quot;);
+        sleep(9999999999999);
+}
+EOF
+$ gcc --static hello-kernel.c -o init
+$ find . | cpio -o -H newc | gzip > root.cpio.gz
+</code></pre>
+<h3 id="making-a-hard-disk-for-root">Making a hard disk (for root)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#making-a-hard-disk-for-root" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>$ dd if=/dev/zero of=roorfs.ext2 bs=1024k count=256
+$ mkfs.ext2 rootfs.ext2
+</code></pre>
+<h3 id="booting">Booting<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#booting" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code># for booting hello-kernel
+$ qemu-system-x86_64 -kernel arch/x86/boot/bzImage -nographic --append &quot;console=tty0 console=ttyS0 panic=1 root=/dev/sda rootfstype=ext2&quot; -hda rootfs.ext2 -m 1024 -vga none -display none -serial mon:stdio -no-reboot -initrd vfs/root.cpio.gz 
+# for booting busybox
+$ qemu-system-x86_64 -kernel arch/x86/boot/bzImage -nographic --append &quot;console=tty0 console=ttyS0 panic=1 root=/dev/sda rootfstype=ext2&quot; -hda rootfs.ext2 -m 1024 -vga none -display none -serial mon:stdio -no-reboot -initrd initrd/root.cpio.gz 
+# qemu-system-x86_64 -kernel arch/x86_64/boot/bzImage -initrd vfs/root.cpio.gz -nographic --append &quot;console=tty0 console=ttyS0 panic=1&quot; -m 512 -vga none -d isplay none -serial mon:stdio -no-reboot
+# qemu-system-x86_64 -kernel arch/x86/boot/bzImage -initrd vfs/root.cpio.gz -nographic --append &quot;console=tty0 console=ttyS0 panic=1 root=/dev/sda&quot; -hda rootfs.ext2 -m 512 -vga none -display none -serial mon:stdio -no-reboot
+</code></pre>
+<p>My own init works now</p>
+<h2 id="running-the-kernel-on-hardware">Running the Kernel on Hardware<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#running-the-kernel-on-hardware" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>If you’re on ubuntu, you can do</p>
+<pre><code>$ update-grub2 # make sure you're using the grub bootloader
+$ make modules_install
+$ make install
+</code></pre>
+<p>When booting up, press and hold <code>&lt;Shift></code> to go to the grub menu, then go to advanced options to select the kernel you want to boot with.
+#Debugging the Kernel using GDB
+Using instructions from <a href="https://www.starlab.io/blog/using-gdb-to-debug-the-linux-kernel" class="external">here<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="bash" data-theme="github-light github-dark"><code data-language="bash" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">vim</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> .config</span><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;"> # edit some stuff</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">make</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> -j32</span></span></code></pre></figure>
+<p>Running time!</p>
+<pre><code>qemu-system-x86_64 -gdb tcp::1234 -S # the rest of the stuff
+qemu-system-x86_64 -kernel arch/x86/boot/bzImage -nographic --append &quot;console=tty0 console=ttyS0 panic=1 root=/dev/sda rootfstype=ext2 nokaslr&quot; -hda rootfs.ext2 -m 1024 -vga none -display none -serial mon:stdio -no-reboot -initrd initrd/root.cpio.gz -gdb tcp::1234 -S
+target remote :1234
+continue
+</code></pre>
+<p>Use <code>^C</code> to SIGINT the kernel.</p>
+<h2 id="interrupting-startup">Interrupting Startup<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#interrupting-startup" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>target remote :1234
+hbreak start_kernel
+i b # info breakpoints
+c
+</code></pre>
+<p>Looking at the proces struct</p>
+<pre><code>(gdb) lx-ps                                               
+      TASK          PID    COMM    
+0xffffffff828169c0   0   swapper
+(gdb) p ((struct task_struct *) 0xffffffff828169c0)
+$11 = (struct task_struct *) 0xffffffff828169c0 &lt;init_task>
+(gdb) p $11->pid
+$13 = 0
+</code></pre>
+<h2 id="interrupts">Interrupts<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#interrupts" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The first impt thing to do is learn how to interrupts work</p>
+<pre><code>(gdb) monitor info registers
+(gdb) set $idtr=0xfffffe0000000000
+(gdb) print /x *(uint64_t*)$idtr
+$15 = 0x81e08e00001008f0
+(gdb) define idt_entry
+>set $tmp = *(uint64_t*)($idtr + 8 * $arg0)
+>print (void *)(($tmp>>48&lt;&lt;16)|($tmp&amp;0xffff))
+>end
+(gdb) set $i=0
+(gdb) idt_entry $i++
+</code></pre>
+<h1 id="system-calls">System calls<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#system-calls" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>Let’s pay some attention to
+<code>syscalls_64.h</code> and <code>arch/x86/entry/syscall_64.c</code>.
+The <code>syscall_64.c</code> file generates code using <code>extern</code>.</p>
+<p>The definition for the function is provided by the
+<code>fs/read_write.c</code>. Namely,</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="c" data-theme="github-light github-dark"><code data-language="c" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">SYSCALL_DEFINE3</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(lseek, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">unsigned</span><span style="--shiki-light:#E36209;--shiki-dark:#FFAB70;"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, fd, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">off_t</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, offset, </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">unsigned</span><span style="--shiki-light:#E36209;--shiki-dark:#FFAB70;"> int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, whence)</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">{</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">	return</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> ksys_lseek</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(fd, offset, whence);</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">}</span></span></code></pre></figure>
+<h2 id="pwn-stuff">Pwn stuff<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#pwn-stuff" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<pre><code>gdb a.out
+disassemble main
+r
+si
+show reg
+^x ^a # to open up TUI mode
+layout next # use the assembly view
+</code></pre>
+<h3 id="bypassing-license-key">Bypassing license key<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bypassing-license-key" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<pre><code>break main
+r a
+ni # until the 2nd jne
+set $eflags ^= (1&lt;&lt;6)
+c
+</code></pre>
+<h3 id="format-string-stonks">Format string (stonks)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#format-string-stonks" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>just spam <code>%x</code> to print stuff on the stack</p>
+<h3 id="buffer-overflow-buffer-overflow-1">Buffer Overflow (buffer overflow 1)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#buffer-overflow-buffer-overflow-1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>It seems like <code>get_return_address()</code> is an internal picoCTF function in <code>asm.h</code> <a href="https://www.wclaymoody.com/blog/a-pwny-for-your-thoughts/" class="external">source<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>.</p>
+<p>Using Radare2,</p>
+<pre><code>aaa
+s main
+ood
+pd
+VV p
+dc
+&lt;F7> # to step 
+. # to return to %rip
+</code></pre>
+<h3 id="cache-me-outside">Cache me outside<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#cache-me-outside" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Attempting the picoctf challenge. Binary will not execute because it has the wrong libc</p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#my-kernel-exploration" data-for="my-kernel-exploration">my kernel exploration</a></li><li class="depth-0"><a href="#for-the-char-device-testing" data-for="for-the-char-device-testing">for the char device testing</a></li><li class="depth-0"><a href="#for-inverting-screen-colors" data-for="for-inverting-screen-colors">For inverting screen colors</a></li><li class="depth-0"><a href="#writing-assembly" data-for="writing-assembly">Writing assembly</a></li><li class="depth-0"><a href="#compile-the-kernel" data-for="compile-the-kernel">Compile the kernel</a></li><li class="depth-1"><a href="#method-1-worked-for-me" data-for="method-1-worked-for-me">Method 1 (worked for me)</a></li><li class="depth-1"><a href="#method-2-didnt-work-for-me" data-for="method-2-didnt-work-for-me">Method 2 (didn’t work for me)</a></li><li class="depth-0"><a href="#cross-compiling-the-kernel" data-for="cross-compiling-the-kernel">Cross compiling the kernel</a></li><li class="depth-1"><a href="#getting-binutils-and-gcc-from-apt" data-for="getting-binutils-and-gcc-from-apt">Getting binutils and gcc from apt</a></li><li class="depth-1"><a href="#building-binutils-from-source" data-for="building-binutils-from-source">Building binutils from source</a></li><li class="depth-1"><a href="#cross-compiling-the-kernel-1" data-for="cross-compiling-the-kernel-1">Cross compiling the kernel</a></li><li class="depth-1"><a href="#contributing-to-mailing-list" data-for="contributing-to-mailing-list">Contributing to mailing list</a></li><li class="depth-2"><a href="#make-our-initramfs" data-for="make-our-initramfs">Make our initramfs</a></li><li class="depth-2"><a href="#making-a-hard-disk-for-root" data-for="making-a-hard-disk-for-root">Making a hard disk (for root)</a></li><li class="depth-2"><a href="#booting" data-for="booting">Booting</a></li><li class="depth-1"><a href="#running-the-kernel-on-hardware" data-for="running-the-kernel-on-hardware">Running the Kernel on Hardware</a></li><li class="depth-1"><a href="#interrupting-startup" data-for="interrupting-startup">Interrupting Startup</a></li><li class="depth-1"><a href="#interrupts" data-for="interrupts">Interrupts</a></li><li class="depth-0"><a href="#system-calls" data-for="system-calls">System calls</a></li><li class="depth-1"><a href="#pwn-stuff" data-for="pwn-stuff">Pwn stuff</a></li><li class="depth-2"><a href="#bypassing-license-key" data-for="bypassing-license-key">Bypassing license key</a></li><li class="depth-2"><a href="#format-string-stonks" data-for="format-string-stonks">Format string (stonks)</a></li><li class="depth-2"><a href="#buffer-overflow-buffer-overflow-1" data-for="buffer-overflow-buffer-overflow-1">Buffer Overflow (buffer overflow 1)</a></li><li class="depth-2"><a href="#cache-me-outside" data-for="cache-me-outside">Cache me outside</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li>No backlinks found</li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2024</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+            const socket = new WebSocket('ws://localhost:3001')
+            // reload(true) ensures resources like images and scripts are fetched again in firefox
+            socket.addEventListener('message', () => document.location.reload(true))
+          </script><script src="../postscript.js" type="module"></script></html>

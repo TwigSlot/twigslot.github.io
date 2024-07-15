@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge"/><meta property="og:description" content="Btw, I will guide you in setting up SSL for any site for $25 (around 1h meeting online), contact me at @tch1001 and save yourself alot of pain in the ass :) Today, I will show you how to setup ..."/><meta property="og:image" content="https://quartz.jzhao.xyz/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="Btw, I will guide you in setting up SSL for any site for $25 (around 1h meeting online), contact me at @tch1001 and save yourself alot of pain in the ass :) Today, I will show you how to setup ..."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="old-blogs-(jekyll)/2023-03-06-ssl"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">🪴 Quartz 4.0</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;blockchain&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blogs-(jekyll)&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="blockchain"><button class="folder-button"><span class="folder-title">blockchain</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="blockchain"><li><a href="../blockchain/Builder-Markets" data-for="blockchain/Builder-Markets">Builder Markets</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blogs-(jekyll)"><button class="folder-button"><span class="folder-title">old blogs (jekyll)</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blogs-(jekyll)"><li><a href="../old-blogs-(jekyll)/2023-03-14-rbac" data-for="old-blogs-(jekyll)/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blogs-(jekyll)/2023-05-02-cech" data-for="old-blogs-(jekyll)/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-minimal-kernel" data-for="old-blogs-(jekyll)/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blogs-(jekyll)/2023-02-28-susy" data-for="old-blogs-(jekyll)/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blogs-(jekyll)/2023-12-28-aws-lambda-bash" data-for="old-blogs-(jekyll)/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blogs-(jekyll)/2023-04-27-ehresmann" data-for="old-blogs-(jekyll)/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-10-05-qemu" data-for="old-blogs-(jekyll)/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blogs-(jekyll)/2023-04-28-covariant-derivative" data-for="old-blogs-(jekyll)/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blogs-(jekyll)/2023-06-22-expander" data-for="old-blogs-(jekyll)/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-kernel-notes" data-for="old-blogs-(jekyll)/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blogs-(jekyll)/2023-02-22-Tphi-OPE" data-for="old-blogs-(jekyll)/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-xv6" data-for="old-blogs-(jekyll)/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blogs-(jekyll)/2023-02-19-propagator" data-for="old-blogs-(jekyll)/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blogs-(jekyll)/2024-01-07-renormalization" data-for="old-blogs-(jekyll)/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blogs-(jekyll)/2023-03-06-ssl" data-for="old-blogs-(jekyll)/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-06-20-ssl-2" data-for="old-blogs-(jekyll)/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-03-29-special-relativity" data-for="old-blogs-(jekyll)/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-teaching-qft" data-for="old-blogs-(jekyll)/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-02-27-weylanomaly" data-for="old-blogs-(jekyll)/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../old-blogs-(jekyll)/">old blogs (jekyll)</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></div></nav><h1 class="article-title">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</h1><p show-comma="true" class="content-meta"><span>Jul 16, 2024</span><span>7 min read</span></p></div></div><article class="popover-hint"><p>Btw, I will <em>guide</em> you in setting up SSL for any site for $25 (around 1h meeting online), contact me at <a href="https://t.me/tch1001" class="external">@tch1001<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a> and save yourself alot of pain in the ass :)</p>
+<p>Today, I will show you how to setup SSL on Kubernetes the manual way. I will be using Traefik as the Ingress Controller and Let’s Encrypt as the Certificate Authority.</p>
+<h2 id="kubernetes-setup">Kubernetes Setup<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#kubernetes-setup" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Suppose we have created a service (with accompanying deployment, pods, and all that) called <code>my-service</code> and we want to expose it to the internet.</p>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  selector:
+    matchLabels:
+      app: my-webserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: my-webserver
+    spec:
+      containers:
+      - name: my-container
+        image: username/my-image
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-webserver
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+#      nodePort: 30002
+  type: ClusterIP
+</code></pre>
+<p>We can expose it to the internet by creating an IngressRoute resource. (<strong>Note</strong>: This is not the final version)</p>
+<pre><code>apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: my-ingressroute
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`my.domain.com`)
+      priority: 1000
+      kind: Rule
+      services:
+        - name: my-service
+          port: 80
+          namespace: my-namespace
+</code></pre>
+<p>Then over on your DNS provider, you just need to point <code>my.domain.com</code> to your <em>Traefik</em> Service’s External IP address, which you can obtain using</p>
+<pre><code>> kubectl get svc -A # -A for all namespaces
+NAME         TYPE          CLUSTER-IP       EXTERNAL-IP       PORT(S)                   AGE
+traefik      LoadBalancer  10.245.211.251   137.184.250.51    80/TCP,8080/TCP,443/TCP   20d
+my-service   ClusterIP     10.245.210.243   &lt;none>            80/TCP                    20d
+</code></pre>
+<p>Traefik will point to <code>my-service</code> through the IngressRoute, and you can check the ingressroutes by going to <code>http://&lt;traefik-service-ip>:8080/dashboard/#/http/routers</code>.
+After adding a DNS record (<strong>note</strong>: use DNS only first (if you’re using Cloudflare), we will get to SSL later) <br/> <br/>
+<img src="../{{site.baseurl}}/assets/images/dnsrecord.png"/>
+Going to <code>http://my.domain.com</code> will show you the website (note the <strong>http</strong>, we have not setup SSL yet).</p>
+<h2 id="setting-up-ssl">Setting up SSL<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#setting-up-ssl" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>There are 2 different ways I will cover. The first being significantly easier but not without some drawbacks.</p>
+<h3 id="bless-cloudflare-flexible-ssl">Bless Cloudflare (Flexible SSL)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bless-cloudflare-flexible-ssl" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>If you’re using cloudflare, you’re in luck, because you just need to use “Proxied” instead of “DNS only” and you’re done. <br/>
+<img src="../{{site.baseurl}}/assets/images/dnsrecord2.png"/></p>
+<p><strong>Note</strong>: If you run into errors, chances are that caching is the issue. I haven’t figured out where this caching occurs exactly. What I do is just create a <em>new</em> record, using a different domain name (e.g. <code>my.domain.com</code> and <code>my2.domain.com</code>).</p>
+<p>This is known as a “Flexible SSL Setup”, where the SSL is terminated at Cloudflare’s edge servers. This means that the traffic between the browser and Cloudflare is encrypted, but the traffic between Cloudflare and your site is not. This is okay for non-security-critical applications like blogs, but is not okay for things that require sensitive traffic like login credentials.  <br/><br/>
+<img src="../{{site.baseurl}}/assets/images/ssl-flexible.png"/></p>
+<p>This is the easiest way to setup SSL, but another drawback is you will not be able to use HTTP/2, which is a newer version of HTTP that is much faster than HTTP/1.1. This is because Cloudflare does not support HTTP/2 for Flexible SSL. If you want to use HTTP/2, you will need to use a different method.</p>
+<p>One upside is that using “Proxied” will hide your server’s IP address (increased security), and you can check this by running</p>
+<pre><code>> ping my2.domain.com
+PING my2.domain.com (104.21.39.182): 56 data bytes
+64 bytes from 104.21.39.182: icmp_seq=0 ttl=49 time=84.412 ms
+</code></pre>
+<p><code>104.21.39.182</code> is not my IP! It is Cloudflare’s IP.</p>
+<h3 id="certbot-ssl-setup">Certbot SSL Setup<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#certbot-ssl-setup" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>If you want to use “DNS only” and still have SSL, or you want “Proxied” with Full encryption mode, you need to create a certificate using <a href="https://certbot.eff.org/" class="external">Certbot<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>. Certbot is a free, open-source tool for automatically using Let’s Encrypt certificates on manually-configured HTTPS servers.</p>
+<p>Usually, people use certbot because it’s very automatic, but in this case I have chosen to manually obtain my certificates and upload it because I want to learn how it works, and have greater control over the process. I have found that when I try to do it automatically using Traefik, there is a lot of fiddling and restarting the services, possibly resulting in downtime.  Through the manual method, you don’t need to touch the <code>my-service</code> Service, and just need to update the IngressRoutes.</p>
+<p>First, you need to install certbot. After that you can run</p>
+<pre><code>sudo certbot certonly --manual --preferred-challenge dns -d my3.domain.com
+</code></pre>
+<ul>
+<li><code>--manual</code> is required if we want to use the DNS acme challenge.</li>
+<li><code>-d my3.domain.com</code> indicates the domain (leaving it out will prompt you to input it manually).</li>
+</ul>
+<p>You will see something like</p>
+<pre><code>Please deploy a DNS TXT record under the name:
+_acme-challenge.my3.domain.com
+with the following value:
+NaeXRxo_oQnpUzeZQ1xj3mhSGaAJ_NXN0wTcOo-_wdA
+
+Before continuing, verify the TXT record has been deployed. Depending on the DNS
+provider, this may take some time, from a few seconds to multiple minutes. You can
+check if it has finished deploying with aid of online tools, such as the Google
+Admin Toolbox: https://toolbox.googleapps.com/apps/dig/#TXT/_acme-challenge.my3.domain.com.
+Look for one or more bolded line(s) below the line ';ANSWER'. It should show the
+value(s) you've just added.
+
+Press Enter to Continue
+</code></pre>
+<p>You need to create a TXT record with the value <code>NaeXRxo_oQnpUzeZQ1xj3mhSGaAJ_NXN0wTcOo-_wdA</code> under <code>_acme-challenge.my3.domain.com</code>. Then check using Google Admin Toolbox (<a href="https://toolbox.googleapps.com/apps/dig/#TXT/_acme-challenge.my3.domain.com." class="external">https://toolbox.googleapps.com/apps/dig/#TXT/_acme-challenge.my3.domain.com.<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>) whether the TXT record is up. If it is, then press Enter</p>
+<pre><code>Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/my3.domain.com/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/my3.domain.com/privkey.pem
+This certificate expires on 2023-06-04.
+These files will be updated when the certificate renews.
+</code></pre>
+<p>Now we need to upload it to Kubernetes and let IngressRoute access it. This is done via <a href="https://kubernetes.io/docs/concepts/configuration/secret/" class="external">Secrets<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>.</p>
+<pre><code>mkdir certs
+sudo cat /etc/letsencrypt/live/my3.domain.com/fullchain.pem > certs/fullchain.pem
+sudo cat /etc/letsencrypt/live/my3.domain.com/privkey.pem > certs/privkey.pem
+# do the above if you can't access /etc
+sudo kubectl create secret generic my-secret \
+    --from-file=tls.crt=/etc/letsencrypt/live/my3.domain.com/fullchain.pem \
+    --from-file=tls.key=/etc/letsencrypt/live/my3.domain.com/privkey.pem
+</code></pre>
+<p>All that remains is to update the IngressRoute.</p>
+<pre><code>apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: my-ingressroute
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`my3.domain.com`)
+      priority: 1000
+      kind: Rule
+      services:
+        - name: my-service
+          port: 80
+          namespace: my-namespace
+  tls:
+    secretName: my-secret
+    domains:
+    - main: my3.domain.com
+      sans:
+      - blah.com
+</code></pre>
+<p>The <code>Host(`my.domain.com`)</code> changed to <code>Host(`my3.domain.com`)</code> and added part is</p>
+<pre><code>  tls:
+    secretName: my-secret
+    domains:
+    - main: my3.domain.com
+      sans:
+      - blah.com
+</code></pre>
+<p>Now add the DNS record for <code>my3.domain.com</code>, change your encryption mode to “Full” and visit the site and all should be good!</p>
+<p>SANS is just alternative DNS names.</p>
+<h2 id="setting-http-redirection-to-https">Setting HTTP redirection to HTTPS<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#setting-http-redirection-to-https" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Great so now if you visit the site <code>https://my3.domain.com</code> you get a nicely secured site! But if you visit <code>http://my3.domain.com</code> you get <code>404</code> error. Oh no. The fix is simple, simply create another <code>IngressRoute</code> that accepts the <code>- web</code> entrypoint, and use a redirection middleware.</p>
+<pre><code>apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirection-middleware
+spec:
+  redirectScheme:
+    scheme: https
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: my-ingressroute-no-tls
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`my3.domain.com`)
+      priority: 1000
+      middlewares:
+        - name: redirection-middleware
+      kind: Rule
+      services:
+        - name: my-service
+          port: 80
+          namespace: my-namespace
+</code></pre>
+<h2 id="common-errors">Common errors<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#common-errors" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="too-many-redirects">Too many redirects<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#too-many-redirects" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Most likely your SSL encryption mode is “Off” in Cloudflare.</p>
+<h3 id="404">404<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#404" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Most likely your SSL encryption mode is “Flexible”. Cloudflare is trying to access the non-SSL version of your site while your site is forcing it to use SSL (redirecting it to https, which confuses Cloudflare).</p>
+<h3 id="502-bad-gateway">502 Bad Gateway<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#502-bad-gateway" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>It could also be that your encryption mode is “Full” or “Full (Strict)” but the SSL on your Kubernetes Traefik end is not setup properly. Cloudflare is trying to establish an encrypted connection with Traefik but Traefik can’t provide one. Check that your Service is running too (can be done using <code>NodePort</code> on Kubernetes, or <code>port-forward</code> tunneling).</p>
+<h3 id="still-not-working-">Still not working :(<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#still-not-working-" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Try setting up on a different domain name. I know that’s dumb but it seems like either the browser or some intermediate server along the way has cached the SSL settings. In other words, when working with SSL, you either get it the first time round or you never get it (because updating the configs don’t seem to affect much).</p>
+<p>What I do personally is try out a bunch of test domains first, before finding out the process that works for the actual one.</p>
+<h2 id="renewing">Renewing<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#renewing" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>By manual provisioning method, the certificates will not auto-renew. I will write another blog on this when I have time.</p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#kubernetes-setup" data-for="kubernetes-setup">Kubernetes Setup</a></li><li class="depth-0"><a href="#setting-up-ssl" data-for="setting-up-ssl">Setting up SSL</a></li><li class="depth-1"><a href="#bless-cloudflare-flexible-ssl" data-for="bless-cloudflare-flexible-ssl">Bless Cloudflare (Flexible SSL)</a></li><li class="depth-1"><a href="#certbot-ssl-setup" data-for="certbot-ssl-setup">Certbot SSL Setup</a></li><li class="depth-0"><a href="#setting-http-redirection-to-https" data-for="setting-http-redirection-to-https">Setting HTTP redirection to HTTPS</a></li><li class="depth-0"><a href="#common-errors" data-for="common-errors">Common errors</a></li><li class="depth-1"><a href="#too-many-redirects" data-for="too-many-redirects">Too many redirects</a></li><li class="depth-1"><a href="#404" data-for="404">404</a></li><li class="depth-1"><a href="#502-bad-gateway" data-for="502-bad-gateway">502 Bad Gateway</a></li><li class="depth-1"><a href="#still-not-working-" data-for="still-not-working-">Still not working :(</a></li><li class="depth-0"><a href="#renewing" data-for="renewing">Renewing</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li>No backlinks found</li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2024</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+            const socket = new WebSocket('ws://localhost:3001')
+            // reload(true) ensures resources like images and scripts are fetched again in firefox
+            socket.addEventListener('message', () => document.location.reload(true))
+          </script><script src="../postscript.js" type="module"></script></html>

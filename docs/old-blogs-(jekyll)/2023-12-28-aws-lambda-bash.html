@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Custom Binaries on AWS Lambda + Poking Around (Bonus)</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Custom Binaries on AWS Lambda + Poking Around (Bonus)"/><meta property="og:description" content="AWS Lambda is a serverless computing platform that allows you to run code without provisioning or managing servers. It is a great way to run code without having to worry about the underlying infrastructure."/><meta property="og:image" content="https://quartz.jzhao.xyz/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="AWS Lambda is a serverless computing platform that allows you to run code without provisioning or managing servers. It is a great way to run code without having to worry about the underlying infrastructure."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="old-blogs-(jekyll)/2023-12-28-aws-lambda-bash"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">🪴 Quartz 4.0</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;blockchain&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blogs-(jekyll)&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="blockchain"><button class="folder-button"><span class="folder-title">blockchain</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="blockchain"><li><a href="../blockchain/Builder-Markets" data-for="blockchain/Builder-Markets">Builder Markets</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blogs-(jekyll)"><button class="folder-button"><span class="folder-title">old blogs (jekyll)</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blogs-(jekyll)"><li><a href="../old-blogs-(jekyll)/2023-03-14-rbac" data-for="old-blogs-(jekyll)/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blogs-(jekyll)/2023-05-02-cech" data-for="old-blogs-(jekyll)/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-minimal-kernel" data-for="old-blogs-(jekyll)/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blogs-(jekyll)/2023-02-28-susy" data-for="old-blogs-(jekyll)/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blogs-(jekyll)/2023-12-28-aws-lambda-bash" data-for="old-blogs-(jekyll)/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blogs-(jekyll)/2023-04-27-ehresmann" data-for="old-blogs-(jekyll)/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-10-05-qemu" data-for="old-blogs-(jekyll)/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blogs-(jekyll)/2023-04-28-covariant-derivative" data-for="old-blogs-(jekyll)/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blogs-(jekyll)/2023-06-22-expander" data-for="old-blogs-(jekyll)/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-kernel-notes" data-for="old-blogs-(jekyll)/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blogs-(jekyll)/2023-02-22-Tphi-OPE" data-for="old-blogs-(jekyll)/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blogs-(jekyll)/2023-08-13-xv6" data-for="old-blogs-(jekyll)/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blogs-(jekyll)/2023-02-19-propagator" data-for="old-blogs-(jekyll)/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blogs-(jekyll)/2024-01-07-renormalization" data-for="old-blogs-(jekyll)/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blogs-(jekyll)/2023-03-06-ssl" data-for="old-blogs-(jekyll)/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-06-20-ssl-2" data-for="old-blogs-(jekyll)/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blogs-(jekyll)/2023-03-29-special-relativity" data-for="old-blogs-(jekyll)/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blogs-(jekyll)/2023-01-31-teaching-qft" data-for="old-blogs-(jekyll)/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blogs-(jekyll)/2023-02-27-weylanomaly" data-for="old-blogs-(jekyll)/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../old-blogs-(jekyll)/">old blogs (jekyll)</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></div></nav><h1 class="article-title">Custom Binaries on AWS Lambda + Poking Around (Bonus)</h1><p show-comma="true" class="content-meta"><span>Jul 16, 2024</span><span>7 min read</span></p></div></div><article class="popover-hint"><p>AWS Lambda is a serverless computing platform that allows you to run code without provisioning or managing servers. It is a great way to run code without having to worry about the underlying infrastructure. It is also very cheap, and you only pay for the time your code is running.</p>
+<p>If your workload is a simple script, you can use their inline editor to write your code. But if you want to use a custom binary, you need to package it into a zip file and upload it to AWS Lambda. This is a guide on how to do that.</p>
+<p>In my example, I will upload a binary that I compiled from source. I will not be using the CLI and will be using the AWS Web Console instead.</p>
+<h1 id="creating-the-lambda-function">Creating the Lambda Function<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#creating-the-lambda-function" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>First create a Lambda function. I will be using the Amazon Linux 2 runtime. I will also be using the default execution role.</p>
+<p><img src="../assets/images/customruntime1.png" alt="Create Lambda Function"/></p>
+<p>Select Amazon Linux 2</p>
+<p><img src="../assets/images/customruntime2.png" alt="Select Amazon Linux 2"/></p>
+<p>We will now be uploading a bootstrap file in the next section</p>
+<p><img src="../assets/images/customruntime3.png" alt="Telling Us to Upload Bootstrap"/></p>
+<p>When the function has finished creating, the Code dashboard will look like this</p>
+<p><img src="../assets/images/customruntime4.png" alt="Code Dashboard"/></p>
+<p>The <code>README.md</code> file reads</p>
+<pre><code>A runtime is a program that runs a Lambda function's handler method when the function is invoked. The runtime can be included in your function's deployment package, or in a [layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html). [Learn more](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html) about custom Lambda runtimes.
+
+For reference, this function includes a sample [Bash](https://www.gnu.org/software/bash/) runtime in `bootstrap.sample` and a corresponding handler file `hello.sh.sample`. As a next step, you should provide your own bootstrap by either adding a layer implementing a custom runtime or including a `bootstrap` file in this function's deployment package.
+</code></pre>
+<p>We may be tempted to just rename the function <code>bootstrap.sample</code> to <code>bootstrap</code> and the function <code>hello.sh.sample</code> to <code>hello.sh</code>.</p>
+<p><img src="../assets/images/customruntime5.png" alt="Renaming the Files"/></p>
+<p>Then create a new test event and run it.</p>
+<p><img src="../assets/images/customruntime6.png" alt="Creating a Test Event"/></p>
+<p>We should see a successful test.</p>
+<p><img src="../assets/images/customruntime8.png" alt="Success"/></p>
+<h2 id="common-error-creating-a-new-file-instead-of-renaming">Common Error: Creating a new file instead of renaming<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#common-error-creating-a-new-file-instead-of-renaming" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>If you create a new file instead of renaming, you will see this error</p>
+<p><img src="../assets/images/customruntime7.png" alt="bootstrap not executable"/></p>
+<h2 id="common-error-not-deploying-the-function">Common Error: Not deploying the function<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#common-error-not-deploying-the-function" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>After you make changes to the files (including renaming), you need to deploy the function. Otherwise the old files will still be used. And they will say they cannot find the <code>bootstrap</code> file.</p>
+<p><img src="../assets/images/customruntime9.png" alt="bootstrap not found"/></p>
+<h2 id="common-error-i-accidentally-deleted-the-bootstrap-file">Common Error: I accidentally deleted the bootstrap file<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#common-error-i-accidentally-deleted-the-bootstrap-file" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>If you accidentally deleted the old <code>bootstrap.sh.sample</code> file, and now you can’t create one that has executable permissions, you must do the following</p>
+<pre><code>cat > bootstrap &lt;&lt; EOF
+#!/bin/sh
+set -euo pipefail
+
+# Handler format: &lt;script_name>.&lt;bash_function_name>
+#
+# The script file &lt;script_name>.sh  must be located at the root of your
+# function's deployment package, alongside this bootstrap executable.
+source $(dirname &quot;$0&quot;)/&quot;$(echo $_HANDLER | cut -d. -f1).sh&quot;
+
+while true
+do
+    # Request the next event from the Lambda runtime
+    HEADERS=&quot;$(mktemp)&quot;
+    EVENT_DATA=$(curl -v -sS -LD &quot;$HEADERS&quot; -X GET &quot;http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/invocation/next&quot;)
+    INVOCATION_ID=$(grep -Fi Lambda-Runtime-Aws-Request-Id &quot;$HEADERS&quot; | tr -d '[:space:]' | cut -d: -f2)
+
+    # Execute the handler function from the script
+    RESPONSE=$($(echo &quot;$_HANDLER&quot; | cut -d. -f2) &quot;$EVENT_DATA&quot;)
+
+    # Send the response to Lambda runtime
+    curl -v -sS -X POST &quot;http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/invocation/$INVOCATION_ID/response&quot; -d &quot;$RESPONSE&quot;
+done
+EOF
+
+cat > hello.sh &lt;&lt; EOF
+function handler () {
+    EVENT_DATA=$1
+
+    RESPONSE=&quot;{\&quot;statusCode\&quot;: 200, \&quot;body\&quot;: \&quot;Hello from Lambda!\&quot;}&quot;
+    echo $RESPONSE
+}
+EOF
+</code></pre>
+<p>Change the permissions</p>
+<pre><code>chmod +x bootstrap
+chmod +x hello.sh
+</code></pre>
+<p>Then zip it up and upload it</p>
+<pre><code>zip my_bootstrap.zip bootstrap hello.sh
+</code></pre>
+<p><img src="../assets/images/customruntime10.png" alt="Uploading the bootstrap"/>
+<img src="../assets/images/customruntime11.png" alt="Uploading the bootstrap"/>
+<img src="../assets/images/customruntime12.png" alt="Works now"/></p>
+<h1 id="custom-binary">Custom Binary<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#custom-binary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>Do note that whatever scripts or binaries you want to run, you need to compile it on the same OS as the Lambda runtime. In this case, it is Amazon Linux 2. So I will be using a Docker container to compile my binary.</p>
+<h2 id="docker-container">Docker Container<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#docker-container" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>First setup our build environment. By looking at our runtime image, we can refer to the docs to find the Dockerfile for the image.</p>
+<p><img src="../assets/images/cr13.png" alt="Runtime Image"/></p>
+<p>Which we can find the image for <a href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#runtimes-images-provided" class="external">here<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></p>
+<p><img src="../assets/images/cr14.png" alt="Documentation"/></p>
+<p>We go ahead and clone the repo</p>
+<pre><code>git clone --branch provided.al2 --depth 1 https://github.com/aws/aws-lambda-base-images.git 
+cd aws-lambda-base-images
+# either of the following
+sed -i 's/scratch/public.ecr.aws\/lambda\/nodejs:18/g' Dockerfile.provided.al2
+sed -i 's/scratch/amazonlinux:2/g' Dockerfile.provided.al2
+docker build -f Dockerfile.provided.al2 -t lambda_image:1.0.0 .
+</code></pre>
+<p>We had to replace the <code>FROM scratch</code> with <code>FROM public.ecr.aws/lambda/nodejs:18</code> because we want to <code>docker exec</code> into the container later and have a nice shell, and <code>scratch</code> does not have a shell. Also because it seems like we can’t run <code>/lambda-entrypoint.sh</code> the scratch image (either this is bug in Amazon’s GitHub, or Lambda loads containers differently from our local Docker <code>runc</code>).</p>
+<h3 id="creating-our-image">Creating our image<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#creating-our-image" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Then we can run our build environment</p>
+<pre><code>docker run -d -v $PWD:/tmp/meow --name lambda_image lambda_image:1.0.0
+docker exec -it lambda_image bash
+</code></pre>
+<h3 id="writing-our-binary">Writing our binary<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#writing-our-binary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Install build environment in the interative shell</p>
+<pre><code>yum install -y gcc-c++ vim
+</code></pre>
+<p>Or you could bake it into the image by adding it to the Dockerfile</p>
+<h3 id="compiling-our-binary">Compiling our binary<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#compiling-our-binary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Then we can write a simple C++ program</p>
+<pre><code>cat > test.cpp &lt;&lt; EOF
+#include &lt;stdio.h>
+int main(){
+    printf(&quot;Hello, world!\n&quot;);
+}
+EOF
+</code></pre>
+<p>And compile it</p>
+<pre><code>g++ test.cpp -o my_binary
+cp my_binary /tmp/meow
+</code></pre>
+<p>Exit the container and zip it up</p>
+<pre><code>chmod +x my_binary
+zip my_binary.zip my_binary
+</code></pre>
+<h3 id="uploading-our-binary">Uploading our binary<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#uploading-our-binary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>Then we can upload it to our Lambda function</p>
+<p><img src="../assets/images/cr15.png" alt="Adding Layer"/></p>
+<p>We use <code>hello.sh</code> to make sure it works</p>
+<p><img src="../assets/images/cr16.png" alt="hello.sh"/></p>
+<p>The output is</p>
+<pre><code>total 8
+-rwxr-xr-x 1 root root 8176 Dec 27 18:01 my_binary
+Hello, world!
+</code></pre>
+<h1 id="extra-understanding-aws-lambda-runtime">Extra: Understanding AWS Lambda Runtime<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#extra-understanding-aws-lambda-runtime" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>Nice that you are here at the end! Let’s have some fun and dig deep into AWS Lambda.</p>
+<pre><code>docker exec -it --entrypoint bash lambda_image:1.0.0 
+cat /lambda-entrypoint.sh
+</code></pre>
+<p>We see that</p>
+<pre><code>#!/bin/sh
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+if [ $# -ne 1 ]; then
+  echo &quot;entrypoint requires the handler name to be the first argument&quot; 1>&amp;2
+  exit 142
+fi
+export _HANDLER=&quot;$1&quot;
+
+RUNTIME_ENTRYPOINT=/var/runtime/bootstrap
+if [ -z &quot;${AWS_LAMBDA_RUNTIME_API}&quot; ]; then
+  exec /usr/local/bin/aws-lambda-rie $RUNTIME_ENTRYPOINT
+else
+  exec $RUNTIME_ENTRYPOINT
+fi
+</code></pre>
+<p>Curiously,</p>
+<pre><code>cat /usr/local/bin/aws-lambda-rie # binary file garbage
+cat /var/runtime/bootstrap 
+</code></pre>
+<p>We see</p>
+<pre><code>#!/bin/sh
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+if [ -z &quot;$NODE_PATH&quot; ]; then
+  nodejs_mods=&quot;/opt/nodejs/node_modules&quot;
+  nodejs18_mods=&quot;/opt/nodejs/node18/node_modules&quot;
+  runtime_mods=&quot;/var/runtime/node_modules&quot;
+  task=&quot;/var/runtime:/var/task&quot;
+  export NODE_PATH=&quot;$nodejs18_mods:$nodejs_mods:$runtime_mods:$task&quot;
+fi
+
+if [ -n &quot;$AWS_LAMBDA_FUNCTION_MEMORY_SIZE&quot; ]; then
+  new_space=$(expr $AWS_LAMBDA_FUNCTION_MEMORY_SIZE / 10)
+  semi_space=$(expr $new_space / 2)
+  old_space=$(expr $AWS_LAMBDA_FUNCTION_MEMORY_SIZE - $new_space)
+  MEMORY_ARGS=(
+    &quot;--max-semi-space-size=$semi_space&quot;
+    &quot;--max-old-space-size=$old_space&quot;
+  )
+fi
+
+# If NODE_EXTRA_CA_CERTS is being set by the customer, don't override. Else, include RDS CA
+if [ -z &quot;${NODE_EXTRA_CA_CERTS+set}&quot; ]; then
+  # Use the default CA bundle in CN regions and regions that have 3 dashes in their name
+  if [ &quot;${AWS_REGION:0:3}&quot; == &quot;cn-&quot; ] || [ &quot;${AWS_REGION//[^-]}&quot; == &quot;---&quot; ]; then
+    export NODE_EXTRA_CA_CERTS=/etc/pki/tls/certs/ca-bundle.crt
+  else
+    # /var/runtime/ca-cert.pem contains all certs in &quot;/etc/pki/tls/certs/ca-bundle.crt&quot; that
+    # are not already embedded in the node binary.
+    export NODE_EXTRA_CA_CERTS=/var/runtime/ca-cert.pem
+  fi
+fi
+
+export AWS_EXECUTION_ENV=AWS_Lambda_nodejs18.x
+
+NODE_ARGS=(
+    --expose-gc
+    --max-http-header-size 81920
+    &quot;${MEMORY_ARGS[@]}&quot;
+    /var/runtime/index.mjs
+    )
+
+if [ -z &quot;$AWS_LAMBDA_EXEC_WRAPPER&quot; ]; then
+  exec /var/lang/bin/node &quot;${NODE_ARGS[@]}&quot;
+else
+  wrapper=&quot;$AWS_LAMBDA_EXEC_WRAPPER&quot;
+  if [ ! -f &quot;$wrapper&quot; ]; then
+    echo &quot;$wrapper: does not exist&quot;
+    exit 127
+  fi
+  if [ ! -x &quot;$wrapper&quot; ]; then
+    echo &quot;$wrapper: is not an executable&quot;
+    exit 126
+  fi
+    exec -- &quot;$wrapper&quot; /var/lang/bin/node &quot;${NODE_ARGS[@]}&quot;
+fi
+</code></pre>
+<p>It seems to be invoking nodejs. I wonder if other images will have different <code>bootstrap</code> files. Let’s go to the Amazon Lambda console and use <code>hello.sh</code> to probe around.</p>
+<p>With my <code>hello.sh</code> file as</p>
+<pre><code>function handler () {
+    ls -l /var/runtime
+}
+</code></pre>
+<p>I get a funny result that</p>
+<pre><code>total 9852
+-rwxr-xr-x 1 root root 10085351 Oct 19 17:20 init
+</code></pre>
+<p>I tried to <code>cat</code> it but it timed out (since it’s 10Mb afterall).</p>
+<h2 id="where-is-layers-uploaded-to">Where is layers uploaded to?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#where-is-layers-uploaded-to" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>AWS Lambda Layers are uploaded to <code>/opt</code> in the container. We can verify this by creating a layer and uploading it to our function.</p>
+<pre><code>echo &quot;meow&quot; > test.txt
+zip test.zip test.txt
+</code></pre>
+<p>Then after uploading, we can use <code>hello.sh</code> to again probe around.</p>
+<pre><code>function handler () {
+    ls -l /opt
+}
+</code></pre>
+<p>and we see</p>
+<pre><code>total 1
+-rwxr-xr-x 1 root root 5 Dec 27 17:37 test.txt
+</code></pre>
+<p>Now what if we wanted to upload it to a different path? Idk</p>
+<h2 id="environment-variables">Environment variables<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#environment-variables" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>I used <code>env</code> in <code>hello.sh</code> to see the environment variables. I redacted some of the values.</p>
+<pre><code>AWS_LAMBDA_FUNCTION_VERSION=$LATEST
+AWS_SESSION_TOKEN=REDACTED
+LAMBDA_TASK_ROOT=/var/task
+AWS_LAMBDA_LOG_GROUP_NAME=/aws/lambda/custom_runtime
+LD_LIBRARY_PATH=/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib
+AWS_LAMBDA_RUNTIME_API=127.0.0.1:9001
+AWS_LAMBDA_LOG_STREAM_NAME=2023/12/27/[$LATEST]REDACTED_UUID
+AWS_LAMBDA_FUNCTION_NAME=custom_runtime
+AWS_XRAY_DAEMON_ADDRESS=REDACTED_IPV4_ADDRESS:2000
+PATH=/usr/local/bin:/usr/bin/:/bin:/opt/bin
+AWS_DEFAULT_REGION=us-east-1
+PWD=/var/task
+AWS_SECRET_ACCESS_KEY=REDACTED
+LANG=en_US.UTF-8
+LAMBDA_RUNTIME_DIR=/var/runtime
+AWS_LAMBDA_INITIALIZATION_TYPE=on-demand
+TZ=:UTC
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=REDACTED
+SHLVL=1
+_AWS_XRAY_DAEMON_ADDRESS=REDACTED_IPV4_ADDRESS
+_AWS_XRAY_DAEMON_PORT=2000
+AWS_XRAY_CONTEXT_MISSING=LOG_ERROR
+_HANDLER=hello.handler
+AWS_LAMBDA_FUNCTION_MEMORY_SIZE=128
+_=/usr/bin/env
+</code></pre></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#creating-the-lambda-function" data-for="creating-the-lambda-function">Creating the Lambda Function</a></li><li class="depth-1"><a href="#common-error-creating-a-new-file-instead-of-renaming" data-for="common-error-creating-a-new-file-instead-of-renaming">Common Error: Creating a new file instead of renaming</a></li><li class="depth-1"><a href="#common-error-not-deploying-the-function" data-for="common-error-not-deploying-the-function">Common Error: Not deploying the function</a></li><li class="depth-1"><a href="#common-error-i-accidentally-deleted-the-bootstrap-file" data-for="common-error-i-accidentally-deleted-the-bootstrap-file">Common Error: I accidentally deleted the bootstrap file</a></li><li class="depth-0"><a href="#custom-binary" data-for="custom-binary">Custom Binary</a></li><li class="depth-1"><a href="#docker-container" data-for="docker-container">Docker Container</a></li><li class="depth-2"><a href="#creating-our-image" data-for="creating-our-image">Creating our image</a></li><li class="depth-2"><a href="#writing-our-binary" data-for="writing-our-binary">Writing our binary</a></li><li class="depth-2"><a href="#compiling-our-binary" data-for="compiling-our-binary">Compiling our binary</a></li><li class="depth-2"><a href="#uploading-our-binary" data-for="uploading-our-binary">Uploading our binary</a></li><li class="depth-0"><a href="#extra-understanding-aws-lambda-runtime" data-for="extra-understanding-aws-lambda-runtime">Extra: Understanding AWS Lambda Runtime</a></li><li class="depth-1"><a href="#where-is-layers-uploaded-to" data-for="where-is-layers-uploaded-to">Where is layers uploaded to?</a></li><li class="depth-1"><a href="#environment-variables" data-for="environment-variables">Environment variables</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li>No backlinks found</li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2024</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+            const socket = new WebSocket('ws://localhost:3001')
+            // reload(true) ensures resources like images and scripts are fetched again in firefox
+            socket.addEventListener('message', () => document.location.reload(true))
+          </script><script src="../postscript.js" type="module"></script></html>
