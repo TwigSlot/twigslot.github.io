@@ -1,7 +1,7 @@
 ---
 title: "Setoid Hell: A Minimal Comparison Across Proof Assistants"
 date: 2026-02-15
-draft: true
+draft: false
 tags: [type-theory, proof-assistants, coq, agda, lean4, iris]
 ---
 

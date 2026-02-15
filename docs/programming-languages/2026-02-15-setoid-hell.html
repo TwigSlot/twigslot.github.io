@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Setoid Hell: A Minimal Comparison Across Proof Assistants</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Setoid Hell: A Minimal Comparison Across Proof Assistants"/><meta property="og:description" content="What is Setoid Hell? In type theories without quotient types (or with only propositional equality), you often can’t form A/~ as a first-class type. Instead, you work with a setoid: a type A paired with an equivalence relation ~, and you must manually prove that every function and predicate respects this relation."/><meta property="og:image" content="https://twigslot.github.io/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="What is Setoid Hell? In type theories without quotient types (or with only propositional equality), you often can’t form A/~ as a first-class type. Instead, you work with a setoid: a type A paired with an equivalence relation ~, and you must manually prove that every function and predicate respects this relation."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="programming-languages/2026-02-15-setoid-hell"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">twigslot</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;ai-research&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;fun-with-hardware&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blog&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;performance-engineering&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;programming-languages&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="ai-research"><button class="folder-button"><span class="folder-title">ai research</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="ai-research"></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="fun-with-hardware"><button class="folder-button"><span class="folder-title">fun with hardware</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="fun-with-hardware"></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blog"><button class="folder-button"><span class="folder-title">old blog</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blog"><li><a href="../old-blog/2023-03-14-rbac" data-for="old-blog/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blog/Bitcoin" data-for="old-blog/Bitcoin">Bitcoin</a></li><li><a href="../old-blog/Builder-Markets" data-for="old-blog/Builder-Markets">Builder Markets</a></li><li><a href="../old-blog/2023-05-02-cech" data-for="old-blog/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blog/2023-01-31-minimal-kernel" data-for="old-blog/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blog/2023-02-28-susy" data-for="old-blog/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blog/2023-12-28-aws-lambda-bash" data-for="old-blog/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blog/2023-04-27-ehresmann" data-for="old-blog/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blog/2023-10-05-qemu" data-for="old-blog/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blog/2023-04-28-covariant-derivative" data-for="old-blog/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blog/2023-06-22-expander" data-for="old-blog/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blog/2023-08-13-kernel-notes" data-for="old-blog/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blog/2023-02-22-Tphi-OPE" data-for="old-blog/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blog/2023-08-13-xv6" data-for="old-blog/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blog/2023-02-19-propagator" data-for="old-blog/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blog/2024-01-07-renormalization" data-for="old-blog/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blog/2023-03-06-ssl" data-for="old-blog/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blog/2023-06-20-ssl-2" data-for="old-blog/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blog/2023-03-29-special-relativity" data-for="old-blog/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blog/2023-01-31-teaching-qft" data-for="old-blog/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blog/2023-02-27-weylanomaly" data-for="old-blog/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="performance-engineering"><button class="folder-button"><span class="folder-title">performance engineering</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="performance-engineering"><li><a href="../performance-engineering/2026-02-15-perf" data-for="performance-engineering/2026-02-15-perf">Taming the Noise: How to Get Reliable Performance Measurements on Linux</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="programming-languages"><button class="folder-button"><span class="folder-title">programming languages</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="programming-languages"><li><a href="../programming-languages/2026-02-15-exploring-clangd" data-for="programming-languages/2026-02-15-exploring-clangd">Exploring Clangd: Why It Eats All Your RAM and What We Can Do About It</a></li><li><a href="../programming-languages/2026-02-15-setoid-hell" data-for="programming-languages/2026-02-15-setoid-hell">Setoid Hell: A Minimal Comparison Across Proof Assistants</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../programming-languages/">programming languages</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Setoid Hell: A Minimal Comparison Across Proof Assistants</a></div></nav><h1 class="article-title">Setoid Hell: A Minimal Comparison Across Proof Assistants</h1><p show-comma="true" class="content-meta"><span>Feb 15, 2026</span><span>12 min read</span></p><ul class="tags"><li><a href="../tags/type-theory" class="internal tag-link">type-theory</a></li><li><a href="../tags/proof-assistants" class="internal tag-link">proof-assistants</a></li><li><a href="../tags/coq" class="internal tag-link">coq</a></li><li><a href="../tags/agda" class="internal tag-link">agda</a></li><li><a href="../tags/lean4" class="internal tag-link">lean4</a></li><li><a href="../tags/iris" class="internal tag-link">iris</a></li></ul></div></div><article class="popover-hint"><h2 id="what-is-setoid-hell">What is Setoid Hell?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#what-is-setoid-hell" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>In type theories without quotient types (or with only propositional equality), you often can’t form <code>A/~</code> as a first-class type. Instead, you work with a <strong>setoid</strong>: a type <code>A</code> paired with an equivalence relation <code>~</code>, and you must manually prove that every function and predicate <strong>respects</strong> this relation.</p>
+<p>This is “setoid hell” — the cascading obligation to thread compatibility proofs through everything.</p>
+<h3 id="the-running-example">The Running Example<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-running-example" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>We define <strong>integers as pairs of naturals</strong> <code>(a, b)</code> representing <code>a - b</code>, where <code>(a₁, b₁) ~ (a₂, b₂)</code> iff <code>a₁ + b₂ = a₂ + b₁</code>. We define negation and addition, then prove they respect the equivalence.</p>
+<p>This is deliberately minimal — real setoid hell gets much worse when you compose multiple setoid-valued functions, define homomorphisms between setoids, or try to rewrite under binders.</p>
+<p>All code below is <strong>verified</strong> — it compiles/typechecks as shown. Source: <a href="https://github.com/twigslot/setoid-hell" class="external">github.com/twigslot/setoid-hell<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a> <em>(TODO: push)</em>.</p>
+<hr/>
+<h2 id="coq-rocq-91">Coq (Rocq 9.1)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#coq-rocq-91" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Coq has a <code>Setoid</code> typeclass and generalized rewriting (<code>rewrite</code> works over registered setoids via <code>Proper</code>/<code>respectful</code> morphisms). But you must register everything explicitly.</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="coq" data-theme="github-light github-dark"><code data-language="coq" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>From Stdlib Require Import Setoid Morphisms Lia.</span></span>
+<span data-line><span>From Stdlib.Classes Require Import SetoidClass.</span></span>
+<span data-line> </span>
+<span data-line><span>(* (a, b) represents the integer a - b *)</span></span>
+<span data-line><span>Record MyInt := mkMyInt { pos : nat ; neg : nat }.</span></span>
+<span data-line> </span>
+<span data-line><span>Definition myint_eq (x y : MyInt) : Prop :=</span></span>
+<span data-line><span>  pos x + neg y = pos y + neg x.</span></span>
+<span data-line> </span>
+<span data-line><span>Lemma myint_eq_refl : forall x, myint_eq x x.</span></span>
+<span data-line><span>Proof. unfold myint_eq; lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>Lemma myint_eq_sym : forall x y, myint_eq x y -> myint_eq y x.</span></span>
+<span data-line><span>Proof. unfold myint_eq; lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>Lemma myint_eq_trans : forall x y z,</span></span>
+<span data-line><span>  myint_eq x y -> myint_eq y z -> myint_eq x z.</span></span>
+<span data-line><span>Proof. unfold myint_eq; lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>#[export] Instance myint_equiv : Equivalence myint_eq :=</span></span>
+<span data-line><span>  { Equivalence_Reflexive := myint_eq_refl</span></span>
+<span data-line><span>  ; Equivalence_Symmetric := myint_eq_sym</span></span>
+<span data-line><span>  ; Equivalence_Transitive := myint_eq_trans }.</span></span>
+<span data-line> </span>
+<span data-line><span>#[export] Instance myint_setoid : Setoid MyInt :=</span></span>
+<span data-line><span>  { equiv := myint_eq }.</span></span>
+<span data-line> </span>
+<span data-line><span>(* Negation: swap the components *)</span></span>
+<span data-line><span>Definition myint_neg (x : MyInt) : MyInt :=</span></span>
+<span data-line><span>  mkMyInt (neg x) (pos x).</span></span>
+<span data-line> </span>
+<span data-line><span>(* THE PAIN: every function needs a Proper instance *)</span></span>
+<span data-line><span>#[export] Instance myint_neg_proper :</span></span>
+<span data-line><span>  Proper (myint_eq ==> myint_eq) myint_neg.</span></span>
+<span data-line><span>Proof. unfold Proper, respectful, myint_eq, myint_neg; simpl; lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>(* Addition *)</span></span>
+<span data-line><span>Definition myint_add (x y : MyInt) : MyInt :=</span></span>
+<span data-line><span>  mkMyInt (pos x + pos y) (neg x + neg y).</span></span>
+<span data-line> </span>
+<span data-line><span>(* Binary Proper instance — twice the declaration *)</span></span>
+<span data-line><span>#[export] Instance myint_add_proper :</span></span>
+<span data-line><span>  Proper (myint_eq ==> myint_eq ==> myint_eq) myint_add.</span></span>
+<span data-line><span>Proof. unfold Proper, respectful, myint_eq, myint_add; simpl; lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>(* Now setoid rewriting works: *)</span></span>
+<span data-line><span>Example test : forall a b,</span></span>
+<span data-line><span>  myint_eq a b -> myint_eq (myint_neg a) (myint_neg b).</span></span>
+<span data-line><span>Proof. intros a b Hab. rewrite Hab. reflexivity. Qed.</span></span></code></pre></figure>
+<p><strong>The hell:</strong> Every function touching <code>MyInt</code> needs a <code>Proper</code> instance. For a binary operation, you need <code>Proper (myint_eq ==> myint_eq ==> myint_eq)</code>. Compose three functions? Three <code>Proper</code> instances. Rewriting under a lambda? You need <code>Proper (myint_eq ==> iff)</code> for predicates and <code>pointwise_relation</code> for higher-order cases.</p>
+<p><strong>The silver lining:</strong> <code>lia</code> handles all the arithmetic. The <em>proof content</em> is trivial — it’s the <em>bureaucratic declarations</em> that hurt.</p>
+<hr/>
+<h2 id="agda">Agda<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#agda" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Agda has no built-in setoid rewriting. The standard library provides <code>Setoid</code> records, but you thread everything manually with equational reasoning chains. No tactics, no automation — just you and the term language.</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="agda" data-theme="github-light github-dark"><code data-language="agda" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>module SetoidHell where</span></span>
+<span data-line> </span>
+<span data-line><span>open import Data.Nat using (ℕ; _+_)</span></span>
+<span data-line><span>open import Data.Nat.Properties using (+-comm; +-assoc; +-cancelˡ-≡)</span></span>
+<span data-line><span>open import Data.Product using (_×_; _,_)</span></span>
+<span data-line><span>open import Relation.Binary using (IsEquivalence; Setoid)</span></span>
+<span data-line><span>open import Relation.Binary.PropositionalEquality as ≡</span></span>
+<span data-line><span>  using (_≡_; refl; sym; trans; cong)</span></span>
+<span data-line> </span>
+<span data-line><span>MyInt : Set</span></span>
+<span data-line><span>MyInt = ℕ × ℕ</span></span>
+<span data-line> </span>
+<span data-line><span>_≈_ : MyInt → MyInt → Set</span></span>
+<span data-line><span>(a₁ , b₁) ≈ (a₂ , b₂) = (a₁ + b₂) ≡ (a₂ + b₁)</span></span>
+<span data-line> </span>
+<span data-line><span>≈-refl : ∀ {x} → x ≈ x</span></span>
+<span data-line><span>≈-refl = refl</span></span>
+<span data-line> </span>
+<span data-line><span>≈-sym : ∀ {x y} → x ≈ y → y ≈ x</span></span>
+<span data-line><span>≈-sym p = sym p</span></span>
+<span data-line> </span>
+<span data-line><span>-- Transitivity: THIS is setoid hell.</span></span>
+<span data-line><span>-- In Coq: &quot;unfold myint_eq; lia.&quot; (one line)</span></span>
+<span data-line><span>-- In Agda: 20 lines of manual equational reasoning.</span></span>
+<span data-line><span>≈-trans : ∀ {x y z} → x ≈ y → y ≈ z → x ≈ z</span></span>
+<span data-line><span>≈-trans {a₁ , b₁} {a₂ , b₂} {a₃ , b₃} p q =</span></span>
+<span data-line><span>  +-cancelˡ-≡ a₂ (a₁ + b₃) (a₃ + b₁) lemma</span></span>
+<span data-line><span>  where</span></span>
+<span data-line><span>    lemma : a₂ + (a₁ + b₃) ≡ a₂ + (a₃ + b₁)</span></span>
+<span data-line><span>    lemma =</span></span>
+<span data-line><span>      let open ≡.≡-Reasoning in</span></span>
+<span data-line><span>      begin</span></span>
+<span data-line><span>        a₂ + (a₁ + b₃)</span></span>
+<span data-line><span>      ≡⟨ sym (+-assoc a₂ a₁ b₃) ⟩</span></span>
+<span data-line><span>        (a₂ + a₁) + b₃</span></span>
+<span data-line><span>      ≡⟨ cong (_+ b₃) (+-comm a₂ a₁) ⟩</span></span>
+<span data-line><span>        (a₁ + a₂) + b₃</span></span>
+<span data-line><span>      ≡⟨ +-assoc a₁ a₂ b₃ ⟩</span></span>
+<span data-line><span>        a₁ + (a₂ + b₃)</span></span>
+<span data-line><span>      ≡⟨ cong (a₁ +_) q ⟩</span></span>
+<span data-line><span>        a₁ + (a₃ + b₂)</span></span>
+<span data-line><span>      ≡⟨ sym (+-assoc a₁ a₃ b₂) ⟩</span></span>
+<span data-line><span>        (a₁ + a₃) + b₂</span></span>
+<span data-line><span>      ≡⟨ cong (_+ b₂) (+-comm a₁ a₃) ⟩</span></span>
+<span data-line><span>        (a₃ + a₁) + b₂</span></span>
+<span data-line><span>      ≡⟨ +-assoc a₃ a₁ b₂ ⟩</span></span>
+<span data-line><span>        a₃ + (a₁ + b₂)</span></span>
+<span data-line><span>      ≡⟨ cong (a₃ +_) p ⟩</span></span>
+<span data-line><span>        a₃ + (a₂ + b₁)</span></span>
+<span data-line><span>      ≡⟨ sym (+-assoc a₃ a₂ b₁) ⟩</span></span>
+<span data-line><span>        (a₃ + a₂) + b₁</span></span>
+<span data-line><span>      ≡⟨ cong (_+ b₁) (+-comm a₃ a₂) ⟩</span></span>
+<span data-line><span>        (a₂ + a₃) + b₁</span></span>
+<span data-line><span>      ≡⟨ +-assoc a₂ a₃ b₁ ⟩</span></span>
+<span data-line><span>        a₂ + (a₃ + b₁)</span></span>
+<span data-line><span>      ∎</span></span></code></pre></figure>
+<p>And negation’s congruence proof:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="agda" data-theme="github-light github-dark"><code data-language="agda" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>myint-neg : MyInt → MyInt</span></span>
+<span data-line><span>myint-neg (a , b) = (b , a)</span></span>
+<span data-line> </span>
+<span data-line><span>neg-cong : ∀ {x y} → x ≈ y → myint-neg x ≈ myint-neg y</span></span>
+<span data-line><span>neg-cong {a₁ , b₁} {a₂ , b₂} p =</span></span>
+<span data-line><span>  let open ≡.≡-Reasoning in</span></span>
+<span data-line><span>  begin</span></span>
+<span data-line><span>    b₁ + a₂</span></span>
+<span data-line><span>  ≡⟨ +-comm b₁ a₂ ⟩</span></span>
+<span data-line><span>    a₂ + b₁</span></span>
+<span data-line><span>  ≡⟨ sym p ⟩</span></span>
+<span data-line><span>    a₁ + b₂</span></span>
+<span data-line><span>  ≡⟨ +-comm a₁ b₂ ⟩</span></span>
+<span data-line><span>    b₂ + a₁</span></span>
+<span data-line><span>  ∎</span></span></code></pre></figure>
+<p>And the real kicker — addition respects equivalence in <em>both</em> arguments:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="agda" data-theme="github-light github-dark"><code data-language="agda" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>myint-add : MyInt → MyInt → MyInt</span></span>
+<span data-line><span>myint-add (a₁ , b₁) (a₂ , b₂) = (a₁ + a₂ , b₁ + b₂)</span></span>
+<span data-line> </span>
+<span data-line><span>add-cong : ∀ {x₁ x₂ y₁ y₂} → x₁ ≈ x₂ → y₁ ≈ y₂ →</span></span>
+<span data-line><span>           myint-add x₁ y₁ ≈ myint-add x₂ y₂</span></span>
+<span data-line><span>add-cong {a₁ , b₁} {a₂ , b₂} {c₁ , d₁} {c₂ , d₂} p q =</span></span>
+<span data-line><span>  let open ≡.≡-Reasoning in</span></span>
+<span data-line><span>  begin</span></span>
+<span data-line><span>    (a₁ + c₁) + (b₂ + d₂)</span></span>
+<span data-line><span>  ≡⟨ +-assoc a₁ c₁ (b₂ + d₂) ⟩</span></span>
+<span data-line><span>    a₁ + (c₁ + (b₂ + d₂))</span></span>
+<span data-line><span>  ≡⟨ cong (a₁ +_) (sym (+-assoc c₁ b₂ d₂)) ⟩</span></span>
+<span data-line><span>    a₁ + ((c₁ + b₂) + d₂)</span></span>
+<span data-line><span>  ≡⟨ cong (a₁ +_) (cong (_+ d₂) (+-comm c₁ b₂)) ⟩</span></span>
+<span data-line><span>    a₁ + ((b₂ + c₁) + d₂)</span></span>
+<span data-line><span>  ≡⟨ cong (a₁ +_) (+-assoc b₂ c₁ d₂) ⟩</span></span>
+<span data-line><span>    a₁ + (b₂ + (c₁ + d₂))</span></span>
+<span data-line><span>  ≡⟨ cong (a₁ +_) (cong (b₂ +_) q) ⟩</span></span>
+<span data-line><span>    a₁ + (b₂ + (c₂ + d₁))</span></span>
+<span data-line><span>  ≡⟨ sym (+-assoc a₁ b₂ (c₂ + d₁)) ⟩</span></span>
+<span data-line><span>    (a₁ + b₂) + (c₂ + d₁)</span></span>
+<span data-line><span>  ≡⟨ cong (_+ (c₂ + d₁)) p ⟩</span></span>
+<span data-line><span>    (a₂ + b₁) + (c₂ + d₁)</span></span>
+<span data-line><span>  ≡⟨ +-assoc a₂ b₁ (c₂ + d₁) ⟩</span></span>
+<span data-line><span>    a₂ + (b₁ + (c₂ + d₁))</span></span>
+<span data-line><span>  ≡⟨ cong (a₂ +_) (sym (+-assoc b₁ c₂ d₁)) ⟩</span></span>
+<span data-line><span>    a₂ + ((b₁ + c₂) + d₁)</span></span>
+<span data-line><span>  ≡⟨ cong (a₂ +_) (cong (_+ d₁) (+-comm b₁ c₂)) ⟩</span></span>
+<span data-line><span>    a₂ + ((c₂ + b₁) + d₁)</span></span>
+<span data-line><span>  ≡⟨ cong (a₂ +_) (+-assoc c₂ b₁ d₁) ⟩</span></span>
+<span data-line><span>    a₂ + (c₂ + (b₁ + d₁))</span></span>
+<span data-line><span>  ≡⟨ sym (+-assoc a₂ c₂ (b₁ + d₁)) ⟩</span></span>
+<span data-line><span>    (a₂ + c₂) + (b₁ + d₁)</span></span>
+<span data-line><span>  ∎</span></span></code></pre></figure>
+<p><strong>25 lines</strong> to prove addition respects equivalence. In Coq: <code>lia</code>. In Lean: <code>omega</code>. This is the purest expression of setoid hell.</p>
+<p><strong>Escape hatch:</strong> Cubical Agda (<code>--cubical</code>) has real quotient types via higher inductive types, eliminating setoid hell entirely at the cost of a different type theory.</p>
+<hr/>
+<h2 id="lean-4">Lean 4<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#lean-4" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Lean 4 has <strong>quotient types in the kernel</strong> (<code>Quot</code>). This is the primary escape from setoid hell — you form the quotient once, prove respectfulness at the boundary, and then work with a real type.</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="lean" data-theme="github-light github-dark"><code data-language="lean" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>def MyIntRaw := Nat × Nat</span></span>
+<span data-line> </span>
+<span data-line><span>def myint_rel (x y : MyIntRaw) : Prop :=</span></span>
+<span data-line><span>  x.1 + y.2 = y.1 + x.2</span></span>
+<span data-line> </span>
+<span data-line><span>instance myIntSetoid : Setoid MyIntRaw where</span></span>
+<span data-line><span>  r := myint_rel</span></span>
+<span data-line><span>  iseqv := {</span></span>
+<span data-line><span>    refl := fun x => by unfold myint_rel; omega</span></span>
+<span data-line><span>    symm := fun h => by unfold myint_rel at *; omega</span></span>
+<span data-line><span>    trans := fun h1 h2 => by unfold myint_rel at *; omega</span></span>
+<span data-line><span>  }</span></span>
+<span data-line> </span>
+<span data-line><span>-- The quotient type — this IS the integer type</span></span>
+<span data-line><span>def MyInt := Quotient myIntSetoid</span></span>
+<span data-line> </span>
+<span data-line><span>namespace MyInt</span></span>
+<span data-line> </span>
+<span data-line><span>def mk (a b : Nat) : MyInt := Quotient.mk myIntSetoid (a, b)</span></span>
+<span data-line> </span>
+<span data-line><span>-- Negation: one respectfulness proof at Quot.lift, then done</span></span>
+<span data-line><span>def neg (x : MyInt) : MyInt :=</span></span>
+<span data-line><span>  Quotient.lift (fun p : MyIntRaw => Quotient.mk myIntSetoid (p.2, p.1))</span></span>
+<span data-line><span>    (fun a b (h : myint_rel a b) => by</span></span>
+<span data-line><span>      apply Quotient.sound</span></span>
+<span data-line><span>      show myint_rel (a.2, a.1) (b.2, b.1)</span></span>
+<span data-line><span>      unfold myint_rel at *; omega)</span></span>
+<span data-line><span>    x</span></span>
+<span data-line> </span>
+<span data-line><span>-- Addition via Quotient.lift₂</span></span>
+<span data-line><span>def add (x y : MyInt) : MyInt :=</span></span>
+<span data-line><span>  Quotient.lift₂</span></span>
+<span data-line><span>    (fun p q : MyIntRaw => Quotient.mk myIntSetoid (p.1 + q.1, p.2 + q.2))</span></span>
+<span data-line><span>    (fun a₁ b₁ a₂ b₂ (h1 : a₁ ≈ a₂) (h2 : b₁ ≈ b₂) => by</span></span>
+<span data-line><span>      apply Quotient.sound</span></span>
+<span data-line><span>      change myint_rel (a₁.1 + b₁.1, a₁.2 + b₁.2) (a₂.1 + b₂.1, a₂.2 + b₂.2)</span></span>
+<span data-line><span>      unfold myint_rel</span></span>
+<span data-line><span>      change myint_rel a₁ a₂ at h1</span></span>
+<span data-line><span>      change myint_rel b₁ b₂ at h2</span></span>
+<span data-line><span>      unfold myint_rel at h1 h2</span></span>
+<span data-line><span>      omega)</span></span>
+<span data-line><span>    x y</span></span>
+<span data-line> </span>
+<span data-line><span>-- Proofs work directly on the quotient type — no Proper, no setoid rewriting</span></span>
+<span data-line><span>theorem neg_neg (x : MyInt) : neg (neg x) = x := by</span></span>
+<span data-line><span>  induction x using Quotient.inductionOn with</span></span>
+<span data-line><span>  | _ a =></span></span>
+<span data-line><span>    simp [neg]</span></span>
+<span data-line><span>    apply Quotient.sound</span></span>
+<span data-line><span>    show myint_rel (a.1, a.2) a</span></span>
+<span data-line><span>    unfold myint_rel; omega</span></span>
+<span data-line> </span>
+<span data-line><span>theorem add_comm (x y : MyInt) : add x y = add y x := by</span></span>
+<span data-line><span>  induction x using Quotient.inductionOn with</span></span>
+<span data-line><span>  | _ a =></span></span>
+<span data-line><span>    induction y using Quotient.inductionOn with</span></span>
+<span data-line><span>    | _ b =></span></span>
+<span data-line><span>      simp [add]</span></span>
+<span data-line><span>      apply Quotient.sound</span></span>
+<span data-line><span>      show myint_rel (a.1 + b.1, a.2 + b.2) (b.1 + a.1, b.2 + a.2)</span></span>
+<span data-line><span>      unfold myint_rel; omega</span></span>
+<span data-line> </span>
+<span data-line><span>end MyInt</span></span></code></pre></figure>
+<p><strong>The key difference:</strong> After <code>Quotient.lift</code>, <code>neg</code> and <code>add</code> are functions on <code>MyInt</code> — a real type, not a setoid. Downstream code never sees the equivalence relation. No <code>Proper</code> instances, no congruence lemmas, no cascading obligations.</p>
+<p><strong>Remaining friction:</strong> <code>Quotient.lift</code> still requires a respectfulness proof, and <code>Quotient.inductionOn</code> can be verbose. But the obligations are <em>bounded</em> — they don’t cascade.</p>
+<hr/>
+<h2 id="iris-coq-based">Iris (Coq-based)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#iris-coq-based" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Iris is not a standalone proof assistant — it’s a separation logic framework built on Coq. But it introduces its own form of setoid hell via <strong>OFEs</strong> (Ordered Families of Equivalences).</p>
+<p>In Iris, types are compared not by Coq’s <code>=</code> but by a step-indexed equivalence <code>≡{n}≡</code>. Every construction must be <strong>non-expansive</strong> (respects <code>≡{n}≡</code>), which is the Iris analogue of <code>Proper</code>.</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="coq" data-theme="github-light github-dark"><code data-language="coq" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>(* Requires coq-iris — install via:</span></span>
+<span data-line><span>   opam repo add iris-dev https://gitlab.mpi-sws.org/iris/opam.git</span></span>
+<span data-line><span>   opam install coq-iris *)</span></span>
+<span data-line> </span>
+<span data-line><span>From iris.algebra Require Import ofe.</span></span>
+<span data-line> </span>
+<span data-line><span>Record my_int := MkMyInt { mi_pos : nat; mi_neg : nat }.</span></span>
+<span data-line> </span>
+<span data-line><span>Definition my_int_equiv (x y : my_int) : Prop :=</span></span>
+<span data-line><span>  mi_pos x + mi_neg y = mi_pos y + mi_neg x.</span></span>
+<span data-line> </span>
+<span data-line><span>(* For a discrete OFE, step-indexed equiv = equiv at every step *)</span></span>
+<span data-line><span>Instance my_int_equiv_instance : Equiv my_int := my_int_equiv.</span></span>
+<span data-line><span>Instance my_int_dist : Dist my_int := λ _ x y, my_int_equiv x y.</span></span>
+<span data-line> </span>
+<span data-line><span>Instance my_int_ofe_mixin : OfeMixin my_int.</span></span>
+<span data-line><span>Proof.</span></span>
+<span data-line><span>  split.</span></span>
+<span data-line><span>  - intros x y. split; [intros Heq n; apply Heq | intros Hstep; apply (Hstep 0)].</span></span>
+<span data-line><span>  - intros n x y. unfold dist, my_int_dist, my_int_equiv. lia.</span></span>
+<span data-line><span>  - intros n x y. unfold dist, my_int_dist. auto.</span></span>
+<span data-line><span>Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>Canonical Structure my_intO : ofe := Ofe my_int my_int_ofe_mixin.</span></span>
+<span data-line> </span>
+<span data-line><span>Definition my_int_neg (x : my_int) : my_int :=</span></span>
+<span data-line><span>  MkMyInt (mi_neg x) (mi_pos x).</span></span>
+<span data-line> </span>
+<span data-line><span>(* Iris's version of Proper — NonExpansive *)</span></span>
+<span data-line><span>Instance my_int_neg_ne : NonExpansive my_int_neg.</span></span>
+<span data-line><span>Proof. intros n x y Hxy. unfold dist, my_int_dist, my_int_equiv in *. simpl. lia. Qed.</span></span>
+<span data-line> </span>
+<span data-line><span>(* For binary ops: NonExpansive2 *)</span></span>
+<span data-line><span>Instance my_int_add_ne :</span></span>
+<span data-line><span>  NonExpansive2 (λ x y, MkMyInt (mi_pos x + mi_pos y) (mi_neg x + mi_neg y)).</span></span>
+<span data-line><span>Proof. intros n x1 x2 Hx y1 y2 Hy. unfold dist, my_int_dist, my_int_equiv in *. simpl. lia. Qed.</span></span></code></pre></figure>
+<p><strong>The hell:</strong> Iris <em>adds</em> step-indexing on top of Coq’s existing setoid machinery. Every function into/out of OFE types needs <code>NonExpansive</code> proofs. The <code>solve_proper</code> tactic automates many of these, but when it fails (custom constructions, higher-order cases), you’re in deeper hell than vanilla Coq.</p>
+<p><em>(Note: the Iris code above requires the <code>coq-iris</code> opam package and is provided for illustration.)</em></p>
+<hr/>
+<h2 id="summary">Summary<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#summary" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Aspect</th><th>Coq</th><th>Agda</th><th>Lean 4</th><th>Iris (Coq)</th></tr></thead><tbody><tr><td><strong>Quotient types?</strong></td><td>No (kernel)</td><td>No (vanilla); Yes (cubical)</td><td>Yes (kernel)</td><td>N/A (OFEs instead)</td></tr><tr><td><strong>Setoid support</strong></td><td>Typeclass + <code>rewrite</code></td><td>Manual records</td><td><code>Setoid</code> class but rarely needed</td><td>OFE infrastructure</td></tr><tr><td><strong>Morphism proof</strong></td><td><code>Proper</code> instances</td><td>Manual congruence lemmas</td><td><code>Quot.lift</code> (one-shot)</td><td><code>NonExpansive</code> instances</td></tr><tr><td><strong>Automation</strong></td><td><code>lia</code> / <code>typeclasses eauto</code></td><td>None built-in</td><td><code>omega</code> / <code>simp</code></td><td><code>solve_proper</code></td></tr><tr><td><strong>Hell severity</strong></td><td>🔥🔥🔥</td><td>🔥🔥🔥🔥 (no tactic rewriting)</td><td>🔥 (quotients in kernel)</td><td>🔥🔥🔥🔥🔥 (step-indexed)</td></tr><tr><td><strong>Escape hatch</strong></td><td>HoTT library (HITs)</td><td><code>--cubical</code></td><td>Already escaped</td><td><code>solve_proper</code> + discipline</td></tr></tbody></table></div>
+<h3 id="line-count-for-add-respects-">Line count for <code>add</code> respects <code>≈</code><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#line-count-for-add-respects-" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th></th><th>Coq</th><th>Agda</th><th>Lean 4</th></tr></thead><tbody><tr><td><strong>Proof</strong></td><td>1 line (<code>lia</code>)</td><td>25 lines</td><td>6 lines (<code>omega</code>)</td></tr><tr><td><strong>Declaration</strong></td><td>3 lines (<code>Proper</code> instance)</td><td>2 lines (type sig)</td><td>0 (inside <code>Quot.lift₂</code>)</td></tr></tbody></table></div>
+<h3 id="the-takeaway">The Takeaway<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-takeaway" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>Setoid hell is a symptom of missing quotient types.</strong> Lean 4 sidesteps it by putting quotients in the type theory. Cubical Agda sidesteps it with HITs. Vanilla Coq and Agda suffer the most. Iris adds step-indexed equivalences on top of Coq’s existing problems.</p>
+<p>The fundamental tension: your type theory either has quotients (and pays the metatheoretic cost) or doesn’t (and makes users pay the ergonomic cost of setoids).</p>
+<hr/>
+<h2 id="references">References<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#references" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li>Barthe, Capretta, Pons. <em>Setoids in type theory.</em> J. Functional Programming, 2003.</li>
+<li>Altenkirch, Boulier, Kaposi, Tabareau. <em>Setoid type theory — a syntactic translation.</em> MPC 2019.</li>
+<li>Sozeau. <em>A New Look at Generalized Rewriting in Type Theory.</em> JFR, 2009.</li>
+<li>Cohen, Coquand, Huber, Mörtberg. <em>Cubical Type Theory.</em> 2018.</li>
+<li>Jung et al. <em>Iris from the ground up.</em> JFP, 2018.</li>
+<li><a href="https://lean-lang.org/lean4/doc/" class="external">Lean 4 Quotient Types<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://iris-project.org/" class="external">Iris Project<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#what-is-setoid-hell" data-for="what-is-setoid-hell">What is Setoid Hell?</a></li><li class="depth-1"><a href="#the-running-example" data-for="the-running-example">The Running Example</a></li><li class="depth-0"><a href="#coq-rocq-91" data-for="coq-rocq-91">Coq (Rocq 9.1)</a></li><li class="depth-0"><a href="#agda" data-for="agda">Agda</a></li><li class="depth-0"><a href="#lean-4" data-for="lean-4">Lean 4</a></li><li class="depth-0"><a href="#iris-coq-based" data-for="iris-coq-based">Iris (Coq-based)</a></li><li class="depth-0"><a href="#summary" data-for="summary">Summary</a></li><li class="depth-1"><a href="#line-count-for-add-respects-" data-for="line-count-for-add-respects-">Line count for add respects ≈</a></li><li class="depth-1"><a href="#the-takeaway" data-for="the-takeaway">The Takeaway</a></li><li class="depth-0"><a href="#references" data-for="references">References</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li>No backlinks found</li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2026</p><ul><li><a href="https://github.com/twigslot/twigslot.github.io">GitHub</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../postscript.js" type="module"></script></html>
