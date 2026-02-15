@@ -50,4 +50,4 @@ https://etherscan.io/tx/0xd0797a9141636f0d8ce4c196603a6b2aa94348e2b9ad1993239591
 https://mevboost.pics/ nice diagram of order flows from builders => relays => validators
 https://payload.de/data/ bidding in real time 
 
-Reach out to me at [@codfish1](https://t.me/codfish1) :) 
+Reach out to me at [@tch1000](https://t.me/tch1000) :) 
