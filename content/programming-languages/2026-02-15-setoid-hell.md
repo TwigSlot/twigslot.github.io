@@ -17,7 +17,7 @@ We define **integers as pairs of naturals** `(a, b)` representing `a - b`, where
 
 This is deliberately minimal — real setoid hell gets much worse when you compose multiple setoid-valued functions, define homomorphisms between setoids, or try to rewrite under binders.
 
-All code below is **verified** — it compiles/typechecks as shown. Source: [github.com/twigslot/setoid-hell](https://github.com/twigslot/setoid-hell) *(TODO: push)*.
+All code below is **verified** — it compiles/typechecks as shown. Source: [github.com/tch1001/setoid-hell](https://github.com/tch1001/setoid-hell).
 
 ---
 
