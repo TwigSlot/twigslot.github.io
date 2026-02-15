@@ -1,0 +1,3 @@
+---
+title: fun with hardware
+---
