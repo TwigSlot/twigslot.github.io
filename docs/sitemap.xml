@@ -1,9 +1,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url>
     <loc>https://twigslot.github.io/ai-research/</loc>
-    <lastmod>2026-02-15T07:11:54.530Z</lastmod>
+    <lastmod>2026-02-15T16:03:26.696Z</lastmod>
   </url><url>
     <loc>https://twigslot.github.io/fun-with-hardware/</loc>
-    <lastmod>2026-02-15T07:11:55.828Z</lastmod>
+    <lastmod>2026-02-15T16:03:26.697Z</lastmod>
   </url><url>
     <loc>https://twigslot.github.io/</loc>
     <lastmod>2026-02-15T07:11:57.121Z</lastmod>
@@ -71,8 +71,14 @@
     <loc>https://twigslot.github.io/old-blog/Builder-Markets</loc>
     <lastmod>2026-02-15T07:39:33.769Z</lastmod>
   </url><url>
+    <loc>https://twigslot.github.io/old-blog/</loc>
+    <lastmod>2026-02-15T16:03:26.694Z</lastmod>
+  </url><url>
     <loc>https://twigslot.github.io/performance-engineering/2026-02-15-perf</loc>
     <lastmod>2026-02-15T00:00:00.000Z</lastmod>
+  </url><url>
+    <loc>https://twigslot.github.io/performance-engineering/</loc>
+    <lastmod>2026-02-15T16:03:26.694Z</lastmod>
   </url><url>
     <loc>https://twigslot.github.io/programming-languages/2026-02-15-exploring-clangd</loc>
     <lastmod>2026-02-15T00:00:00.000Z</lastmod>
@@ -81,5 +87,5 @@
     <lastmod>2026-02-15T00:00:00.000Z</lastmod>
   </url><url>
     <loc>https://twigslot.github.io/programming-languages/</loc>
-    <lastmod>2026-02-15T07:11:55.118Z</lastmod>
+    <lastmod>2026-02-15T16:03:26.699Z</lastmod>
   </url></urlset>

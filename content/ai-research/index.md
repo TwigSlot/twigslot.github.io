@@ -1,3 +1,3 @@
 ---
-title: ai research
+title: AI Research
 ---

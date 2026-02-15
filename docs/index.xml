@@ -6,6 +6,36 @@
       <description>Last 10 notes on twigslot</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>Programming Languages</title>
+    <link>https://twigslot.github.io/programming-languages/</link>
+    <guid>https://twigslot.github.io/programming-languages/</guid>
+    <description></description>
+    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
+  </item><item>
+    <title>Fun with Hardware</title>
+    <link>https://twigslot.github.io/fun-with-hardware/</link>
+    <guid>https://twigslot.github.io/fun-with-hardware/</guid>
+    <description></description>
+    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
+  </item><item>
+    <title>AI Research</title>
+    <link>https://twigslot.github.io/ai-research/</link>
+    <guid>https://twigslot.github.io/ai-research/</guid>
+    <description></description>
+    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
+  </item><item>
+    <title>Old Blog</title>
+    <link>https://twigslot.github.io/old-blog/</link>
+    <guid>https://twigslot.github.io/old-blog/</guid>
+    <description></description>
+    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
+  </item><item>
+    <title>Performance Engineering</title>
+    <link>https://twigslot.github.io/performance-engineering/</link>
+    <guid>https://twigslot.github.io/performance-engineering/</guid>
+    <description></description>
+    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
+  </item><item>
     <title>Builder Markets</title>
     <link>https://twigslot.github.io/old-blog/Builder-Markets</link>
     <guid>https://twigslot.github.io/old-blog/Builder-Markets</guid>
@@ -35,36 +65,6 @@
     <guid>https://twigslot.github.io/old-blog/2023-10-05-qemu</guid>
     <description>If you do man qemu-system and search for -serial you would come across a good explanation of how the qemu terminal emulation works. Let’s have abit of fun with it.</description>
     <pubDate>Sun, 15 Feb 2026 07:39:29 GMT</pubDate>
-  </item><item>
-    <title>motivating everything</title>
-    <link>https://twigslot.github.io/</link>
-    <guid>https://twigslot.github.io/</guid>
-    <description>...</description>
-    <pubDate>Sun, 15 Feb 2026 07:11:57 GMT</pubDate>
-  </item><item>
-    <title>fun with hardware</title>
-    <link>https://twigslot.github.io/fun-with-hardware/</link>
-    <guid>https://twigslot.github.io/fun-with-hardware/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 07:11:55 GMT</pubDate>
-  </item><item>
-    <title>programming languages</title>
-    <link>https://twigslot.github.io/programming-languages/</link>
-    <guid>https://twigslot.github.io/programming-languages/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 07:11:55 GMT</pubDate>
-  </item><item>
-    <title>ai research</title>
-    <link>https://twigslot.github.io/ai-research/</link>
-    <guid>https://twigslot.github.io/ai-research/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 07:11:54 GMT</pubDate>
-  </item><item>
-    <title>LaTeX Expander</title>
-    <link>https://twigslot.github.io/old-blog/2023-06-22-expander</link>
-    <guid>https://twigslot.github.io/old-blog/2023-06-22-expander</guid>
-    <description>I wrote something to help me write LaTeX more easily. I call it symch v2. It stands for Symbolic Chien Hao lol. v1 is here.</description>
-    <pubDate>Sun, 15 Feb 2026 03:07:25 GMT</pubDate>
   </item>
     </channel>
   </rss>

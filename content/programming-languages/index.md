@@ -1,3 +1,3 @@
 ---
-title: programming languages
+title: Programming Languages
 ---
