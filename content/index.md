@@ -4,7 +4,6 @@ title: motivating everything
 
 ## Performance Engineering
 
-- [[performance-engineering/2026-02-17-init-systems|Init Systems, Daemon Spawning, and the Performance Cost of Process Management]] (2026-02-17)
 - [[performance-engineering/2026-02-16-megaeth|MegaETH: Dissecting a Real-Time Ethereum L2]] (2026-02-16)
 - [[performance-engineering/2026-02-16-firedancer|Firedancer: A Deep Dive into Solana's C Validator]] (2026-02-16)
 - [[performance-engineering/2026-02-15-perf|Notes on software performance]] (2026-02-15)
@@ -17,6 +16,10 @@ title: motivating everything
 ## Fun with Hardware
 
 - [[fun-with-hardware/2026-02-17-hene-laser|Helium-Neon Lasers from First Principles]] (2026-02-17)
+
+## Misc
+
+- [[misc/2026-02-17-init-systems|Init Systems, Daemon Spawning, and the Performance Cost of Process Management]] (2026-02-17)
 
 ## Old blogs
 
