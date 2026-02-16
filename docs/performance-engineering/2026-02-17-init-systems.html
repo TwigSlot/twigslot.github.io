@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Init Systems, Daemon Spawning, and the Performance Cost of Process Management</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Init Systems, Daemon Spawning, and the Performance Cost of Process Management"/><meta property="og:description" content="Most of us type systemctl start myservice and move on. The service starts, it runs in the background, it restarts if it crashes. We don’t think about what’s happening underneath because systemd has made daemon management feel trivial."/><meta property="og:image" content="https://twigslot.github.io/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="Most of us type systemctl start myservice and move on. The service starts, it runs in the background, it restarts if it crashes. We don’t think about what’s happening underneath because systemd has made daemon management feel trivial."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="performance-engineering/2026-02-17-init-systems"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">twigslot</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;ai-research&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;fun-with-hardware&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blog&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;performance-engineering&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;programming-languages&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="ai-research"><button class="folder-button"><span class="folder-title">AI Research</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="ai-research"></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="fun-with-hardware"><button class="folder-button"><span class="folder-title">Fun with Hardware</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="fun-with-hardware"><li><a href="../fun-with-hardware/2026-02-17-hene-laser" data-for="fun-with-hardware/2026-02-17-hene-laser">Helium-Neon Lasers from First Principles</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blog"><button class="folder-button"><span class="folder-title">Old Blog</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blog"><li><a href="../old-blog/2023-03-14-rbac" data-for="old-blog/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blog/Bitcoin" data-for="old-blog/Bitcoin">Bitcoin</a></li><li><a href="../old-blog/Builder-Markets" data-for="old-blog/Builder-Markets">Builder Markets</a></li><li><a href="../old-blog/2023-05-02-cech" data-for="old-blog/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blog/2023-01-31-minimal-kernel" data-for="old-blog/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blog/2023-02-28-susy" data-for="old-blog/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blog/2023-12-28-aws-lambda-bash" data-for="old-blog/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blog/2023-04-27-ehresmann" data-for="old-blog/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blog/2023-10-05-qemu" data-for="old-blog/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blog/2023-04-28-covariant-derivative" data-for="old-blog/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blog/2023-06-22-expander" data-for="old-blog/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blog/2023-08-13-kernel-notes" data-for="old-blog/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blog/2023-02-22-Tphi-OPE" data-for="old-blog/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blog/2023-08-13-xv6" data-for="old-blog/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blog/2023-02-19-propagator" data-for="old-blog/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blog/2024-01-07-renormalization" data-for="old-blog/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blog/2023-03-06-ssl" data-for="old-blog/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blog/2023-06-20-ssl-2" data-for="old-blog/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blog/2023-03-29-special-relativity" data-for="old-blog/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blog/2023-01-31-teaching-qft" data-for="old-blog/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blog/2023-02-27-weylanomaly" data-for="old-blog/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="performance-engineering"><button class="folder-button"><span class="folder-title">Performance Engineering</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="performance-engineering"><li><a href="../performance-engineering/2026-02-16-firedancer" data-for="performance-engineering/2026-02-16-firedancer">Firedancer: A Deep Dive into the Fastest Solana Validator</a></li><li><a href="../performance-engineering/2026-02-17-init-systems" data-for="performance-engineering/2026-02-17-init-systems">Init Systems, Daemon Spawning, and the Performance Cost of Process Management</a></li><li><a href="../performance-engineering/2026-02-16-megaeth" data-for="performance-engineering/2026-02-16-megaeth">MegaETH: Dissecting a Real-Time Ethereum L2</a></li><li><a href="../performance-engineering/2026-02-15-perf" data-for="performance-engineering/2026-02-15-perf">Taming the Noise: How to Get Reliable Performance Measurements on Linux</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="programming-languages"><button class="folder-button"><span class="folder-title">Programming Languages</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="programming-languages"><li><a href="../programming-languages/2026-02-15-exploring-clangd" data-for="programming-languages/2026-02-15-exploring-clangd">Exploring Clangd: Why It Eats All Your RAM and What We Can Do About It</a></li><li><a href="../programming-languages/2026-02-15-setoid-hell" data-for="programming-languages/2026-02-15-setoid-hell">Setoid Hell: A Minimal Comparison Across Proof Assistants</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../performance-engineering/">Performance Engineering</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Init Systems, Daemon Spawning, and the Performance Cost of Process Management</a></div></nav><h1 class="article-title">Init Systems, Daemon Spawning, and the Performance Cost of Process Management</h1><p show-comma="true" class="content-meta"><span>Feb 17, 2026</span><span>18 min read</span></p><ul class="tags"><li><a href="../tags/performance-engineering" class="internal tag-link">performance-engineering</a></li><li><a href="../tags/linux" class="internal tag-link">linux</a></li><li><a href="../tags/systems-programming" class="internal tag-link">systems-programming</a></li><li><a href="../tags/systemd" class="internal tag-link">systemd</a></li><li><a href="../tags/init-systems" class="internal tag-link">init-systems</a></li></ul></div></div><article class="popover-hint"><p>Most of us type <code>systemctl start myservice</code> and move on. The service starts, it runs in the background, it restarts if it crashes. We don’t think about what’s happening underneath because systemd has made daemon management feel trivial. But it wasn’t always this way, and the machinery required to correctly spawn a Unix daemon is surprisingly involved. Understanding it matters if you care about performance — because the init system sits in the critical path of every service lifecycle event, and its design choices ripple into CPU affinity, cgroup placement, socket activation latency, and process scheduling.</p>
+<p>This post covers how daemons actually work at the kernel level, how different init systems handle them, and why the systemd debate is more nuanced than either side admits.</p>
+<hr/>
+<h2 id="the-double-fork-what-daemons-actually-are">The Double Fork: What Daemons Actually Are<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-double-fork-what-daemons-actually-are" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>A daemon is a process that runs in the background, detached from any controlling terminal. Getting there from a normal forked child is more involved than it sounds. The traditional recipe, codified by W. Richard Stevens in <em>Advanced Programming in the UNIX Environment</em>, goes like this:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="c" data-theme="github-light github-dark"><code data-language="c" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &lt;unistd.h></span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &lt;stdlib.h></span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &lt;sys/stat.h></span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">void</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> daemonize</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) {</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    pid_t</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> pid;</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // First fork: exit parent, child continues</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> fork</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">();</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">exit</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">></span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">exit</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">  // Parent exits</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // Create new session — become session leader</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">setsid</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">() </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">exit</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // Second fork: exit session leader, grandchild continues</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> fork</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">();</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&lt;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">exit</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">1</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (pid </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">></span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) </span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">exit</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">  // Session leader exits</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // Now we're a daemon:</span></span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // - Not a session leader (can't acquire controlling tty)</span></span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // - No controlling terminal</span></span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // - Orphaned — init adopts us</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    umask</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    chdir</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;/&quot;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">    // Close all file descriptors</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    for</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> fd </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> sysconf</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(_SC_OPEN_MAX); fd </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">>=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">; fd</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">--</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">        close</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(fd);</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">}</span></span></code></pre></figure>
+<p>Why do you need <em>two</em> forks? The answer lies in how Linux organizes processes into sessions and process groups.</p>
+<p><strong>First fork</strong>: The parent exits. The child is now an orphan, so init (PID 1) adopts it. More importantly, the child is not a process group leader (it has a new PID but inherited the parent’s PGID), so it can call <code>setsid()</code>.</p>
+<p><strong><code>setsid()</code></strong>: Creates a new session. The calling process becomes: (1) the session leader, (2) the process group leader, and (3) has no controlling terminal. This is the key step — it detaches from the original terminal session.</p>
+<p><strong>Second fork</strong>: The session leader exits. The grandchild inherits the session but is <em>not</em> the session leader. This matters because on System V derivatives, a session leader that opens a terminal device automatically acquires it as a controlling terminal. The second fork prevents this. The grandchild can never accidentally reattach to a tty.</p>
+<p>This double-fork dance also handles zombie prevention. The intermediate process exits immediately, so init reaps it. The final daemon process is a direct child of init, which always calls <code>wait()</code> on its children.</p>
+<p>If you’ve ever wondered why so many daemons had subtle bugs around terminal handling, signal delivery, or zombie accumulation — this is why. Getting daemonization right requires understanding sessions, process groups, controlling terminals, and the difference between System V and BSD tty semantics. Every step in the sequence exists to handle a specific edge case.</p>
+<hr/>
+<h2 id="sysvinit-shell-scripts-all-the-way-down">SysVinit: Shell Scripts All the Way Down<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#sysvinit-shell-scripts-all-the-way-down" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The original Linux init system, SysVinit, manages daemons with shell scripts in <code>/etc/init.d/</code>. A typical service script looks like:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="bash" data-theme="github-light github-dark"><code data-language="bash" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">#!/bin/sh</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">case</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &quot;</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">$1</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;"> in</span></span>
+<span data-line><span style="--shiki-light:#032F62;--shiki-dark:#DBEDFF;">  start</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">)</span></span>
+<span data-line><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    echo</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &quot;Starting mydaemon...&quot;</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    /usr/sbin/mydaemon</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --config</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /etc/mydaemon.conf</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> &amp;</span></span>
+<span data-line><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    echo</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> $!</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;"> ></span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /var/run/mydaemon.pid</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    ;;</span></span>
+<span data-line><span style="--shiki-light:#032F62;--shiki-dark:#DBEDFF;">  stop</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">)</span></span>
+<span data-line><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    kill</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> $(</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">cat</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /var/run/mydaemon.pid</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    rm</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> -f</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /var/run/mydaemon.pid</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    ;;</span></span>
+<span data-line><span style="--shiki-light:#032F62;--shiki-dark:#DBEDFF;">  restart</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">)</span></span>
+<span data-line><span style="--shiki-light:#E36209;--shiki-dark:#FFAB70;">    $0</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> stop</span></span>
+<span data-line><span style="--shiki-light:#E36209;--shiki-dark:#FFAB70;">    $0</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> start</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    ;;</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">esac</span></span></code></pre></figure>
+<p>The daemon is expected to daemonize itself (the double fork). The init script just launches it and records the PID. This has several problems:</p>
+<p><strong>PID file races</strong>: Between writing the PID file and the daemon completing initialization, the PID might be recycled. You end up sending <code>SIGTERM</code> to an unrelated process. This isn’t theoretical — it happened regularly on busy systems.</p>
+<p><strong>No process tracking</strong>: If the daemon forks children, SysVinit has no way to track them. <code>kill $(cat pidfile)</code> only kills the main process. Orphaned children linger.</p>
+<p><strong>Sequential startup</strong>: Services start one at a time, in a dependency order encoded by symlink naming (<code>S01foo</code>, <code>S02bar</code>). On a machine with 50 services, boot time is the sum of all startup times. No parallelism.</p>
+<p><strong>No resource control</strong>: SysVinit predates cgroups. There’s no built-in mechanism for CPU affinity, memory limits, or I/O bandwidth control. You’d add <code>taskset</code> or <code>nice</code> calls to the shell script manually.</p>
+<p><strong>Restart handling</strong>: If a daemon crashes, SysVinit doesn’t notice. You’d run a separate watchdog or use <code>inittab</code> respawn entries, which have their own quirks.</p>
+<h3 id="performance-implications">Performance implications<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#performance-implications" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>From a performance engineering perspective, SysVinit’s model is hostile. Shell script interpretation for every service operation adds latency. The sequential boot model wastes parallelism on multi-core machines. The lack of cgroup integration means you can’t do meaningful resource isolation — a misbehaving daemon can consume unbounded CPU, starve other services of I/O, or exhaust memory without any init-level intervention.</p>
+<p>The PID tracking problem is particularly nasty for performance-sensitive workloads. If your monitoring can’t reliably identify which process is your daemon, you can’t reliably pin it to cores, assign it to NUMA nodes, or place it in the right cgroup hierarchy.</p>
+<hr/>
+<h2 id="upstart-event-driven-but-still-daemonizing">Upstart: Event-Driven, But Still Daemonizing<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#upstart-event-driven-but-still-daemonizing" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Ubuntu’s Upstart (2006–2015) introduced event-driven service management. Instead of sequential runlevel scripts, services declared what events they depended on:</p>
+<pre><code># /etc/init/mydaemon.conf
+start on filesystem and net-device-up IFACE=eth0
+stop on shutdown
+
+expect daemon
+respawn
+
+exec /usr/sbin/mydaemon
+</code></pre>
+<p>The <code>expect daemon</code> directive told Upstart that the service would double-fork, so Upstart would track the grandchild PID. This was an improvement — Upstart could actually follow the double fork and know which PID to monitor.</p>
+<p>But <code>expect</code> was fragile. If you said <code>expect daemon</code> and the process only forked once, Upstart would track the wrong PID. If you said <code>expect fork</code> and it double-forked, same problem. Getting this wrong produced services that Upstart thought were running when they’d crashed, or services that Upstart kept killing because it was tracking the wrong process.</p>
+<p>Upstart’s event model did enable some parallelism — services that didn’t depend on each other could start concurrently. But the dependency graph was implicit (encoded in event names) rather than explicit, which made reasoning about boot order difficult.</p>
+<p>Upstart also lacked cgroup integration in its early versions. CPU pinning, NUMA awareness, and memory limits were still manual.</p>
+<hr/>
+<h2 id="systemd-supervision-without-the-fork-dance">systemd: Supervision Without the Fork Dance<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#systemd-supervision-without-the-fork-dance" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>systemd (2010–present) took a fundamentally different approach: <strong>daemons don’t daemonize themselves</strong>. Instead of the double-fork ritual, a service just runs in the foreground:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="ini" data-theme="github-light github-dark"><code data-language="ini" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">[Unit]</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">Description</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=My Daemon</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">After</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=network.target</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">[Service]</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">Type</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=simple</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">ExecStart</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=/usr/sbin/mydaemon --config /etc/mydaemon.conf</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">Restart</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=on-failure</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">CPUAffinity</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=2 3</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">MemoryMax</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=512M</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">IOWeight</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=100</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">[Install]</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">WantedBy</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">=multi-user.target</span></span></code></pre></figure>
+<p>systemd forks the service process itself and manages it directly. No PID files. No double fork. No shell script wrapper. The service process is a direct child of PID 1 (or more precisely, of the systemd service manager), tracked in a cgroup that systemd creates for it.</p>
+<h3 id="why-this-matters-for-performance">Why this matters for performance<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#why-this-matters-for-performance" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>cgroup-based tracking</strong>: Every service gets its own cgroup. This means systemd can:</p>
+<ul>
+<li>Track all processes spawned by a service, including children and grandchildren</li>
+<li>Kill the entire service tree with a single cgroup operation (no zombie stragglers)</li>
+<li>Apply resource limits (CPU, memory, I/O) at the cgroup level</li>
+</ul>
+<p><strong>CPU affinity</strong>: <code>CPUAffinity=</code> directly maps to <code>sched_setaffinity()</code>. You can pin services to specific cores without wrapper scripts. For latency-sensitive workloads, this eliminates the scheduler bouncing your process between cores, destroying L1/L2 cache locality.</p>
+<p><strong>NUMA policy</strong>: <code>NUMAPolicy=</code> and <code>NUMAMask=</code> control memory allocation policy. For databases or in-memory caches, binding to a specific NUMA node can reduce memory access latency by 40–100ns per access (local vs. remote NUMA on a typical dual-socket system).</p>
+<p><strong>Memory limits</strong>: <code>MemoryMax=</code> and <code>MemoryHigh=</code> use the cgroup memory controller. <code>MemoryHigh</code> is a soft limit that triggers reclaim pressure; <code>MemoryMax</code> is a hard limit that triggers the OOM killer. This prevents a runaway service from pushing the entire system into swap death.</p>
+<p><strong>I/O control</strong>: <code>IOWeight=</code> and <code>IODeviceWeight=</code> use the cgroup I/O controller (blk-cgroup). You can ensure your latency-sensitive database gets I/O priority over batch jobs.</p>
+<p><strong>Parallel startup</strong>: systemd builds an explicit dependency graph and starts services in parallel wherever possible. Socket activation (more on this below) further increases parallelism by removing ordering dependencies.</p>
+<p><strong>Socket activation</strong>: systemd can create listening sockets <em>before</em> starting the service. The service inherits the socket via file descriptor passing:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="c" data-theme="github-light github-dark"><code data-language="c" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">#include</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &lt;systemd/sd-daemon.h></span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">int</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> main</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">void</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) {</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> n </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> sd_listen_fds</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> (n </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">></span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> 0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">) {</span></span>
+<span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">        int</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> listen_fd </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> SD_LISTEN_FDS_START;</span><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">  // fd 3</span></span>
+<span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">        // listen_fd is already bound and listening</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    }</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">}</span></span></code></pre></figure>
+<p>This has two performance implications:</p>
+<ol>
+<li>Services can start on-demand (first connection triggers startup), reducing idle resource usage.</li>
+<li>Boot parallelism increases because services don’t need to wait for their dependencies to finish binding sockets — systemd holds the socket and buffers connections until the service is ready.</li>
+</ol>
+<h3 id="the-notify-protocol">The notify protocol<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-notify-protocol" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>For services that need initialization time, <code>Type=notify</code> lets the service signal readiness:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="c" data-theme="github-light github-dark"><code data-language="c" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">sd_notify</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;READY=1&quot;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">sd_notify</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;STATUS=Processing requests...&quot;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">sd_notify</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">0</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;MAINPID=1234&quot;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">);</span></span></code></pre></figure>
+<p>This replaces the old pattern of “fork, do setup, signal parent, parent exits” with an explicit readiness notification. systemd doesn’t consider the service “up” until it receives <code>READY=1</code>, so dependent services wait for actual readiness rather than guessing based on fork timing.</p>
+<hr/>
+<h2 id="openrc-the-middle-ground">OpenRC: The Middle Ground<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#openrc-the-middle-ground" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Gentoo’s OpenRC (and Alpine Linux’s default) takes a pragmatic middle path. It uses shell-script service definitions but with better process management than SysVinit:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="bash" data-theme="github-light github-dark"><code data-language="bash" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">#!/sbin/openrc-run</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">command</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;/usr/sbin/mydaemon&quot;</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">command_args</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;--config /etc/mydaemon.conf&quot;</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">command_background</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">true</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">pidfile</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;/var/run/mydaemon.pid&quot;</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">depend</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">() {</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    need</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> net</span></span>
+<span data-line><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;">    after</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> firewall</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">}</span></span></code></pre></figure>
+<p>OpenRC manages the backgrounding itself when <code>command_background=true</code> — the daemon doesn’t need to double-fork. It uses <code>start-stop-daemon</code>, which handles PID tracking more reliably than raw shell scripts.</p>
+<h3 id="what-openrc-lacks">What OpenRC lacks<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#what-openrc-lacks" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>OpenRC doesn’t use cgroups by default (though it can optionally integrate with them). This means:</p>
+<ul>
+<li>No automatic process tree tracking</li>
+<li>No built-in CPU affinity or NUMA policy</li>
+<li>No memory or I/O limits without external tools</li>
+<li>Service cleanup on stop relies on PID tracking, not cgroup-based kill</li>
+</ul>
+<p>For performance-critical deployments, this means you’re back to manually managing <code>taskset</code>, <code>numactl</code>, <code>cgroups</code>, and <code>ulimit</code> in your service scripts or wrapper scripts.</p>
+<p>OpenRC does support parallel startup and has explicit dependency declarations, so boot time is reasonable. Its footprint is also much smaller than systemd — the init process itself uses minimal memory and CPU, which matters on embedded systems or containers.</p>
+<hr/>
+<h2 id="runit-and-s6-supervision-trees">runit and s6: Supervision Trees<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#runit-and-s6-supervision-trees" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>runit and s6 (by Laurent Bercot) represent the “Unix philosophy” approach to init: small, focused tools composed together.</p>
+<p>A runit service is a directory with a <code>run</code> script:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="bash" data-theme="github-light github-dark"><code data-language="bash" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#6A737D;--shiki-dark:#6A737D;">#!/bin/sh</span></span>
+<span data-line><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">exec</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /usr/sbin/mydaemon</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --foreground</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> --config</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> /etc/mydaemon.conf</span></span></code></pre></figure>
+<p>That’s it. No daemonizing. The service runs in the foreground, and the supervisor (<code>runsv</code>) manages it. If it exits, <code>runsv</code> restarts it. Logging is handled by a paired <code>log/run</code> script that reads the service’s stdout/stderr.</p>
+<p>s6 is architecturally similar but more rigorous. It provides:</p>
+<ul>
+<li><code>s6-svc</code> for service control</li>
+<li><code>s6-svstat</code> for status queries</li>
+<li><code>s6-log</code> for reliable logging with automatic rotation</li>
+<li>Readiness notification (similar to systemd’s <code>Type=notify</code>)</li>
+<li>Proper dependency management via <code>s6-rc</code></li>
+</ul>
+<h3 id="performance-characteristics">Performance characteristics<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#performance-characteristics" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>The supervision model (runit, s6) has interesting performance properties:</p>
+<p><strong>Low overhead</strong>: The supervisor processes are tiny. <code>runsv</code> is a single small C program that calls <code>fork</code>, <code>exec</code>, and <code>wait</code> in a loop. There’s almost no overhead beyond the kernel’s process management.</p>
+<p><strong>Fast restarts</strong>: When a service crashes, the supervisor notices immediately (the child process exited) and restarts it. No polling, no PID file checking. The restart latency is essentially <code>fork()</code> + <code>exec()</code> time.</p>
+<p><strong>No cgroup integration</strong>: Like OpenRC, runit and s6 don’t natively manage cgroups. You can wrap services with <code>cgexec</code> or use cgroup delegation, but it’s manual.</p>
+<p><strong>No built-in CPU affinity</strong>: Same story. You’d add <code>taskset</code> or <code>numactl</code> to the <code>run</code> script.</p>
+<p>s6 has one notable advantage: <code>s6-linux-init</code> can serve as PID 1, giving you a complete init system with proper signal handling, zombie reaping, and shutdown sequencing — all in a few hundred kilobytes of statically-linked C.</p>
+<hr/>
+<h2 id="the-systemd-controversy-unpacking-the-arguments">The systemd Controversy: Unpacking the Arguments<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-systemd-controversy-unpacking-the-arguments" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The debate around systemd is one of the most persistent in the Linux community. Here’s what both sides actually argue, stripped of tribalism.</p>
+<h3 id="arguments-against-systemd">Arguments against systemd<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#arguments-against-systemd" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>Complexity and attack surface</strong>: systemd is large. It includes an init system, a logging daemon (journald), a network manager (networkd), a DNS resolver (resolved), a time synchronizer (timesyncd), a login manager (logind), a container manager (machined), a boot loader manager (bootctl), and more. Critics argue this violates the Unix philosophy of small, composable tools and increases the attack surface. A vulnerability in <code>systemd-resolved</code> compromises PID 1’s security boundary.</p>
+<p><strong>Binary logging</strong>: journald stores logs in a binary format rather than plain text. You need <code>journalctl</code> to read them. If the journal corrupts (which happens), you lose logs. Plain text logs are universally readable, greppable, and resilient.</p>
+<p><strong>Debugging opacity</strong>: When a service fails to start under systemd, the error path can be difficult to trace. The interaction between unit file directives, cgroup setup, namespace creation, and socket activation creates a large state space. Compare this to a shell script where you can <code>bash -x</code> the startup sequence.</p>
+<p><strong>Portability</strong>: systemd is Linux-only. It uses cgroups, <code>epoll</code>, <code>signalfd</code>, <code>timerfd</code>, and other Linux-specific interfaces. BSD systems, Illumos, and other Unix variants can’t run it. Software that hard-depends on systemd’s interfaces (socket activation, <code>sd_notify</code>) becomes Linux-only.</p>
+<p><strong>Scope creep</strong>: systemd absorbs functionality that previously lived in separate projects. <code>udev</code> was merged into the systemd repository. <code>logind</code> replaced <code>ConsoleKit</code>. <code>resolved</code> competes with <code>unbound</code> and <code>dnsmasq</code>. Critics see this as ecosystem consolidation that reduces choice and increases coupling.</p>
+<h3 id="arguments-for-systemd">Arguments for systemd<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#arguments-for-systemd" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><strong>Correctness</strong>: The double-fork daemonization pattern is error-prone. PID files are unreliable. Shell script init systems have subtle bugs around quoting, signal handling, and error propagation. systemd replaces all of this with declarative configuration and cgroup-based tracking. Services that “just work” under systemd often had intermittent bugs under SysVinit.</p>
+<p><strong>Performance features</strong>: As detailed above, systemd provides CPU affinity, NUMA policy, memory limits, I/O weight, and other performance controls declaratively. Doing this with shell scripts is possible but fragile and non-standard.</p>
+<p><strong>Dependency management</strong>: systemd’s dependency graph, combined with socket activation, enables aggressive parallelism during boot. Systems that took 30+ seconds to boot under SysVinit often boot in under 5 seconds with systemd.</p>
+<p><strong>Standardization</strong>: Before systemd, every distribution had its own init scripts with different conventions. A service packaged for Debian wouldn’t work on Red Hat without modification. systemd unit files are portable across distributions. This is a real engineering benefit for anyone shipping software.</p>
+<p><strong>Security features</strong>: Unit files can declaratively enable <code>ProtectSystem=</code>, <code>PrivateTmp=</code>, <code>NoNewPrivileges=</code>, <code>SeccompFilter=</code>, and namespace isolation. These are available without writing any code — just configuration. Getting equivalent isolation with shell scripts requires expertise in Linux namespaces and seccomp.</p>
+<p><strong>Journal correlation</strong>: journald tags log entries with metadata (service name, PID, cgroup, boot ID, invocation ID). You can filter logs by service, by time range, by priority, across reboots. <code>grep</code> on <code>/var/log/syslog</code> can’t do this.</p>
+<h3 id="the-performance-engineering-perspective">The performance engineering perspective<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-performance-engineering-perspective" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>From a pure performance standpoint, systemd is the most capable init system available on Linux. No alternative provides the same level of integrated cgroup management, CPU affinity control, NUMA policy, I/O scheduling, and resource limiting without bolting on external tools.</p>
+<p>But capability isn’t free. systemd itself consumes memory (typically 10–30 MB resident for PID 1 plus journald, timesyncd, etc.). On a server running a handful of performance-critical services, this overhead is irrelevant. On an embedded system with 64 MB of RAM, it matters.</p>
+<p>The journal’s binary format also has performance implications. Writing structured binary log entries is faster than formatting and writing text lines (no <code>sprintf</code>, no text encoding). But reading and searching binary logs requires <code>journalctl</code>, which loads journal files into memory. For high-volume logging, the journal can consume significant I/O and memory.</p>
+<p>For latency-sensitive services specifically, the relevant systemd features are:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Feature</th><th>systemd</th><th>OpenRC</th><th>runit/s6</th></tr></thead><tbody><tr><td>CPU affinity</td><td><code>CPUAffinity=</code></td><td>Manual <code>taskset</code></td><td>Manual <code>taskset</code></td></tr><tr><td>NUMA binding</td><td><code>NUMAPolicy=</code></td><td>Manual <code>numactl</code></td><td>Manual <code>numactl</code></td></tr><tr><td>Core isolation</td><td><code>AllowedCPUs=</code></td><td>Not built-in</td><td>Not built-in</td></tr><tr><td>Memory limits</td><td><code>MemoryMax=</code></td><td>Not built-in</td><td>Not built-in</td></tr><tr><td>I/O priority</td><td><code>IOWeight=</code></td><td>Manual <code>ionice</code></td><td>Manual <code>ionice</code></td></tr><tr><td>Cgroup tracking</td><td>Automatic</td><td>Optional</td><td>Not built-in</td></tr><tr><td>Restart latency</td><td>~ms</td><td>~ms</td><td>~ms</td></tr><tr><td>PID 1 memory</td><td>~10-30 MB</td><td>~1-5 MB</td><td>~1-2 MB</td></tr></tbody></table></div>
+<hr/>
+<h2 id="core-pinning-why-init-systems-matter-for-latency">Core Pinning: Why Init Systems Matter for Latency<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#core-pinning-why-init-systems-matter-for-latency" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>To understand why init system integration with CPU affinity matters, consider what happens without it.</p>
+<p>On a typical Linux system, the CFS (Completely Fair Scheduler) can migrate processes between cores freely. When your latency-sensitive process migrates from core 2 to core 5:</p>
+<ol>
+<li><strong>L1 cache</strong>: ~32 KB of hot data, completely cold on the new core. Refilling takes hundreds of nanoseconds per cache line.</li>
+<li><strong>L2 cache</strong>: ~256 KB–1 MB, also cold. Refill cost is higher (lower bandwidth from L3).</li>
+<li><strong>L3 cache</strong>: Shared across cores in a socket, so data might still be there — but access latency increases if the new core is in a different L3 slice.</li>
+<li><strong>TLB</strong>: Page table entries are per-core. A migration flushes the TLB, causing page table walks for every memory access until entries are repopulated.</li>
+<li><strong>Branch predictor state</strong>: Per-core, completely lost on migration.</li>
+</ol>
+<p>The total cost of a core migration is typically 10–50 microseconds of degraded performance, depending on working set size. For a service processing requests in single-digit microseconds, that’s catastrophic.</p>
+<p>With systemd, you write <code>CPUAffinity=2 3</code> and the problem is solved at service startup. The kernel won’t migrate the process off those cores. Combined with <code>isolcpus=2,3</code> on the kernel command line (which removes those cores from the general scheduler), you get a dedicated execution environment with no interference from other processes.</p>
+<p>Going further, <code>AllowedCPUs=</code> in systemd works with cpusets (the cgroup v2 CPU controller). This is more flexible than <code>CPUAffinity</code> — it controls which CPUs the <em>entire cgroup</em> (all processes in the service) can use, and it’s hierarchical.</p>
+<p>For the most demanding workloads, you’d combine:</p>
+<ul>
+<li><code>isolcpus=2,3,4,5</code> (kernel parameter) — removes cores from general scheduling</li>
+<li><code>CPUAffinity=2 3 4 5</code> (systemd) — pins your service to those cores</li>
+<li><code>NUMAPolicy=bind</code> + <code>NUMAMask=0</code> (systemd) — ensures memory allocations come from the local NUMA node</li>
+<li><code>IRQAffinity</code> (via <code>/proc/irq/*/smp_affinity</code>) — moves interrupt handling off your isolated cores</li>
+<li><code>nohz_full=2,3,4,5</code> (kernel parameter) — disables timer ticks on those cores when only one task is running</li>
+</ul>
+<p>This kind of configuration is possible with any init system using wrapper scripts, but systemd makes it declarative and consistent. When you have 50 services on a machine and each needs specific CPU, memory, and I/O constraints, declarative configuration in unit files beats 50 hand-crafted shell scripts.</p>
+<hr/>
+<h2 id="what-actually-uses-what">What Actually Uses What<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#what-actually-uses-what" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>A quick survey of which distributions use which init system, as of 2026:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Distribution</th><th>Init System</th><th>Notes</th></tr></thead><tbody><tr><td>Debian 12+</td><td>systemd</td><td>Default since Debian 8 (Jessie)</td></tr><tr><td>Ubuntu 15.04+</td><td>systemd</td><td>Migrated from Upstart</td></tr><tr><td>Fedora 15+</td><td>systemd</td><td>One of the earliest adopters</td></tr><tr><td>Arch Linux</td><td>systemd</td><td>Default since 2012</td></tr><tr><td>RHEL / CentOS / Rocky</td><td>systemd</td><td>Default since RHEL 7</td></tr><tr><td>SUSE / openSUSE</td><td>systemd</td><td>Default since openSUSE 12.2</td></tr><tr><td>Gentoo</td><td>OpenRC</td><td>systemd available as option</td></tr><tr><td>Alpine Linux</td><td>OpenRC</td><td>Musl-based, minimal footprint</td></tr><tr><td>Void Linux</td><td>runit</td><td>Explicitly anti-systemd</td></tr><tr><td>Artix Linux</td><td>OpenRC/runit/s6</td><td>Arch without systemd</td></tr><tr><td>Devuan</td><td>sysvinit</td><td>Debian without systemd</td></tr><tr><td>Chimera Linux</td><td>dinit</td><td>New init system, service manager in C++</td></tr><tr><td>Slackware</td><td>sysvinit</td><td>BSD-style init scripts</td></tr><tr><td>GuixSD</td><td>GNU Shepherd</td><td>Scheme-based service management</td></tr></tbody></table></div>
+<p>The trend is clear: systemd dominates mainstream distributions. The alternatives survive in niches — embedded (Alpine), minimalist (Void), ideological (Devuan), and experimental (Chimera with dinit).</p>
+<hr/>
+<h2 id="newer-alternatives-dinit-and-beyond">Newer Alternatives: dinit and Beyond<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#newer-alternatives-dinit-and-beyond" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>It’s worth mentioning dinit, a newer init system written in C++ that’s gaining traction. It provides:</p>
+<ul>
+<li>Dependency-based service management (like systemd)</li>
+<li>Foreground service supervision (like runit/s6)</li>
+<li>Readiness notification</li>
+<li>Optional cgroup integration</li>
+<li>Small codebase (~15k lines of C++)</li>
+</ul>
+<p>dinit occupies an interesting position: it provides the supervision and dependency management of systemd without the scope expansion. It doesn’t include a logging daemon, DNS resolver, network manager, or any of systemd’s auxiliary components. For users who want modern service management without the full systemd ecosystem, it’s a credible option.</p>
+<p>However, dinit currently lacks the deep cgroup integration that makes systemd compelling for performance engineering — you won’t find equivalents of <code>CPUAffinity=</code>, <code>NUMAPolicy=</code>, or <code>MemoryMax=</code> as built-in service directives. You can still achieve these with wrapper scripts or cgroup delegation.</p>
+<hr/>
+<h2 id="closing-thoughts">Closing Thoughts<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#closing-thoughts" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The double-fork daemonization pattern is a relic of a simpler time — when Unix systems ran a handful of services and terminals were physical devices. The fact that we needed a specific fork sequence to prevent a process from accidentally acquiring a controlling terminal tells you something about the accidental complexity that accumulated in Unix process management.</p>
+<p>systemd’s core insight was that the init system should <em>own</em> the process lifecycle rather than asking each daemon to implement it independently. This eliminated an entire class of bugs and enabled cgroup-based resource management that would be impractical to bolt onto a shell-script init system.</p>
+<p>Whether the additional components bundled with systemd (journald, resolved, networkd, etc.) are a good idea is a separate question from whether its service management model is sound. You can disagree with the scope while acknowledging that <code>Type=simple</code> + cgroup tracking + declarative resource limits is a strictly better daemon management model than double-fork + PID files + shell scripts.</p>
+<p>For performance engineering specifically, the question is practical: do you need integrated CPU affinity, NUMA policy, memory limits, and I/O control for your services? If yes, systemd gives you that declaratively. If your services are simple and your performance requirements are modest, OpenRC or runit will serve you fine with less overhead.</p>
+<p>The kernel doesn’t care which init system starts your process. It cares about which cgroup the process is in, which cores it’s pinned to, which NUMA node its memory comes from, and whether anything else is competing for its cache lines. The init system is just the interface to those kernel mechanisms — and right now, systemd provides the most complete interface.</p>
+<hr/>
+<h2 id="references">References<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#references" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li>W. Richard Stevens, <em>Advanced Programming in the UNIX Environment</em>, Chapter 13: Daemon Processes</li>
+<li><a href="https://aeb.win.tue.nl/linux/lk/lk-10.html" class="external">The Linux Kernel — Processes, sessions, and process groups<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://stackoverflow.com/questions/881388/what-is-the-reason-for-performing-a-double-fork-when-creating-a-daemon" class="external">Double fork explanation (Stack Overflow)<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://www.freedesktop.org/software/systemd/man/" class="external">systemd documentation<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://skarnet.org/software/s6/" class="external">s6 documentation<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://davmac.github.io/dinit/" class="external">dinit documentation<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li><a href="https://wiki.gentoo.org/wiki/OpenRC" class="external">OpenRC documentation<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+<li>Lennart Poettering, <a href="http://0pointer.de/blog/projects/systemd-for-admins-1.html" class="external">systemd for Administrators blog series<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#the-double-fork-what-daemons-actually-are" data-for="the-double-fork-what-daemons-actually-are">The Double Fork: What Daemons Actually Are</a></li><li class="depth-0"><a href="#sysvinit-shell-scripts-all-the-way-down" data-for="sysvinit-shell-scripts-all-the-way-down">SysVinit: Shell Scripts All the Way Down</a></li><li class="depth-1"><a href="#performance-implications" data-for="performance-implications">Performance implications</a></li><li class="depth-0"><a href="#upstart-event-driven-but-still-daemonizing" data-for="upstart-event-driven-but-still-daemonizing">Upstart: Event-Driven, But Still Daemonizing</a></li><li class="depth-0"><a href="#systemd-supervision-without-the-fork-dance" data-for="systemd-supervision-without-the-fork-dance">systemd: Supervision Without the Fork Dance</a></li><li class="depth-1"><a href="#why-this-matters-for-performance" data-for="why-this-matters-for-performance">Why this matters for performance</a></li><li class="depth-1"><a href="#the-notify-protocol" data-for="the-notify-protocol">The notify protocol</a></li><li class="depth-0"><a href="#openrc-the-middle-ground" data-for="openrc-the-middle-ground">OpenRC: The Middle Ground</a></li><li class="depth-1"><a href="#what-openrc-lacks" data-for="what-openrc-lacks">What OpenRC lacks</a></li><li class="depth-0"><a href="#runit-and-s6-supervision-trees" data-for="runit-and-s6-supervision-trees">runit and s6: Supervision Trees</a></li><li class="depth-1"><a href="#performance-characteristics" data-for="performance-characteristics">Performance characteristics</a></li><li class="depth-0"><a href="#the-systemd-controversy-unpacking-the-arguments" data-for="the-systemd-controversy-unpacking-the-arguments">The systemd Controversy: Unpacking the Arguments</a></li><li class="depth-1"><a href="#arguments-against-systemd" data-for="arguments-against-systemd">Arguments against systemd</a></li><li class="depth-1"><a href="#arguments-for-systemd" data-for="arguments-for-systemd">Arguments for systemd</a></li><li class="depth-1"><a href="#the-performance-engineering-perspective" data-for="the-performance-engineering-perspective">The performance engineering perspective</a></li><li class="depth-0"><a href="#core-pinning-why-init-systems-matter-for-latency" data-for="core-pinning-why-init-systems-matter-for-latency">Core Pinning: Why Init Systems Matter for Latency</a></li><li class="depth-0"><a href="#what-actually-uses-what" data-for="what-actually-uses-what">What Actually Uses What</a></li><li class="depth-0"><a href="#newer-alternatives-dinit-and-beyond" data-for="newer-alternatives-dinit-and-beyond">Newer Alternatives: dinit and Beyond</a></li><li class="depth-0"><a href="#closing-thoughts" data-for="closing-thoughts">Closing Thoughts</a></li><li class="depth-0"><a href="#references" data-for="references">References</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li><a href="../" class="internal">motivating everything</a></li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2026</p><ul><li><a href="https://github.com/twigslot/twigslot.github.io">GitHub</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+            const socket = new WebSocket('ws://localhost:3001')
+            // reload(true) ensures resources like images and scripts are fetched again in firefox
+            socket.addEventListener('message', () => document.location.reload(true))
+          </script><script src="../postscript.js" type="module"></script></html>

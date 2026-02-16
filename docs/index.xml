@@ -12,6 +12,18 @@
     <description>The helium-neon laser is the most elegant gas laser ever engineered. It produces a continuous, stable, nearly perfect Gaussian beam using nothing more than a tube of gas, two mirrors, and a high-voltage discharge.</description>
     <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
   </item><item>
+    <title>Init Systems, Daemon Spawning, and the Performance Cost of Process Management</title>
+    <link>https://twigslot.github.io/performance-engineering/2026-02-17-init-systems</link>
+    <guid>https://twigslot.github.io/performance-engineering/2026-02-17-init-systems</guid>
+    <description>Most of us type systemctl start myservice and move on. The service starts, it runs in the background, it restarts if it crashes. We don’t think about what’s happening underneath because systemd has made daemon management feel trivial.</description>
+    <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
+  </item><item>
+    <title>motivating everything</title>
+    <link>https://twigslot.github.io/</link>
+    <guid>https://twigslot.github.io/</guid>
+    <description>Performance Engineering Init Systems, Daemon Spawning, and the Performance Cost of Process Management (2026-02-17) MegaETH: Dissecting a Real-Time Ethereum L2 (2026-02-16) ...</description>
+    <pubDate>Mon, 16 Feb 2026 21:09:25 GMT</pubDate>
+  </item><item>
     <title>Firedancer: A Deep Dive into the Fastest Solana Validator</title>
     <link>https://twigslot.github.io/performance-engineering/2026-02-16-firedancer</link>
     <guid>https://twigslot.github.io/performance-engineering/2026-02-16-firedancer</guid>
@@ -53,18 +65,6 @@
     <guid>https://twigslot.github.io/performance-engineering/</guid>
     <description></description>
     <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
-  </item><item>
-    <title>Builder Markets</title>
-    <link>https://twigslot.github.io/old-blog/Builder-Markets</link>
-    <guid>https://twigslot.github.io/old-blog/Builder-Markets</guid>
-    <description>Useful links Post-merge, independent stakeholders are Searchers Builders Decentralisation of the builder market talks about the difficulty of bootstrapping a builder, with ...</description>
-    <pubDate>Sun, 15 Feb 2026 07:39:33 GMT</pubDate>
-  </item><item>
-    <title>Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</title>
-    <link>https://twigslot.github.io/old-blog/2023-03-06-ssl</link>
-    <guid>https://twigslot.github.io/old-blog/2023-03-06-ssl</guid>
-    <description>Btw, I will guide you in setting up SSL for any site for $25 (around 1h meeting online), contact me at @tch1000 and save yourself alot of pain in the ass :) Today, I will show you how to setup ...</description>
-    <pubDate>Sun, 15 Feb 2026 07:39:32 GMT</pubDate>
   </item>
     </channel>
   </rss>
