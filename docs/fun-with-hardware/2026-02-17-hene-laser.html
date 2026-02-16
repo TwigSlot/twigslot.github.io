@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Helium-Neon Lasers from First Principles</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Helium-Neon Lasers from First Principles"/><meta property="og:description" content="The helium-neon laser is the most elegant gas laser ever engineered. It produces a continuous, stable, nearly perfect Gaussian beam using nothing more than a tube of gas, two mirrors, and a high-voltage discharge."/><meta property="og:image" content="https://twigslot.github.io/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="The helium-neon laser is the most elegant gas laser ever engineered. It produces a continuous, stable, nearly perfect Gaussian beam using nothing more than a tube of gas, two mirrors, and a high-voltage discharge."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="fun-with-hardware/2026-02-17-hene-laser"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">twigslot</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;ai-research&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;fun-with-hardware&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blog&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;performance-engineering&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;programming-languages&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="ai-research"><button class="folder-button"><span class="folder-title">AI Research</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="ai-research"></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="fun-with-hardware"><button class="folder-button"><span class="folder-title">Fun with Hardware</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="fun-with-hardware"><li><a href="../fun-with-hardware/2026-02-17-hene-laser" data-for="fun-with-hardware/2026-02-17-hene-laser">Helium-Neon Lasers from First Principles</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blog"><button class="folder-button"><span class="folder-title">Old Blog</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blog"><li><a href="../old-blog/2023-03-14-rbac" data-for="old-blog/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blog/Bitcoin" data-for="old-blog/Bitcoin">Bitcoin</a></li><li><a href="../old-blog/Builder-Markets" data-for="old-blog/Builder-Markets">Builder Markets</a></li><li><a href="../old-blog/2023-05-02-cech" data-for="old-blog/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blog/2023-01-31-minimal-kernel" data-for="old-blog/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blog/2023-02-28-susy" data-for="old-blog/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blog/2023-12-28-aws-lambda-bash" data-for="old-blog/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blog/2023-04-27-ehresmann" data-for="old-blog/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blog/2023-10-05-qemu" data-for="old-blog/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blog/2023-04-28-covariant-derivative" data-for="old-blog/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blog/2023-06-22-expander" data-for="old-blog/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blog/2023-08-13-kernel-notes" data-for="old-blog/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blog/2023-02-22-Tphi-OPE" data-for="old-blog/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blog/2023-08-13-xv6" data-for="old-blog/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blog/2023-02-19-propagator" data-for="old-blog/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blog/2024-01-07-renormalization" data-for="old-blog/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blog/2023-03-06-ssl" data-for="old-blog/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blog/2023-06-20-ssl-2" data-for="old-blog/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blog/2023-03-29-special-relativity" data-for="old-blog/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blog/2023-01-31-teaching-qft" data-for="old-blog/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blog/2023-02-27-weylanomaly" data-for="old-blog/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="performance-engineering"><button class="folder-button"><span class="folder-title">Performance Engineering</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="performance-engineering"><li><a href="../performance-engineering/2026-02-16-firedancer" data-for="performance-engineering/2026-02-16-firedancer">Firedancer: A Deep Dive into the Fastest Solana Validator</a></li><li><a href="../performance-engineering/2026-02-16-megaeth" data-for="performance-engineering/2026-02-16-megaeth">MegaETH: Dissecting a Real-Time Ethereum L2</a></li><li><a href="../performance-engineering/2026-02-15-perf" data-for="performance-engineering/2026-02-15-perf">Taming the Noise: How to Get Reliable Performance Measurements on Linux</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="programming-languages"><button class="folder-button"><span class="folder-title">Programming Languages</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="programming-languages"><li><a href="../programming-languages/2026-02-15-exploring-clangd" data-for="programming-languages/2026-02-15-exploring-clangd">Exploring Clangd: Why It Eats All Your RAM and What We Can Do About It</a></li><li><a href="../programming-languages/2026-02-15-setoid-hell" data-for="programming-languages/2026-02-15-setoid-hell">Setoid Hell: A Minimal Comparison Across Proof Assistants</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../fun-with-hardware/">Fun with Hardware</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Helium-Neon Lasers from First Principles</a></div></nav><h1 class="article-title">Helium-Neon Lasers from First Principles</h1><p show-comma="true" class="content-meta"><span>Feb 17, 2026</span><span>14 min read</span></p><ul class="tags"><li><a href="../tags/lasers" class="internal tag-link">lasers</a></li><li><a href="../tags/optics" class="internal tag-link">optics</a></li><li><a href="../tags/physics" class="internal tag-link">physics</a></li><li><a href="../tags/hardware" class="internal tag-link">hardware</a></li></ul></div></div><article class="popover-hint"><p>The helium-neon laser is the most elegant gas laser ever engineered. It produces a continuous, stable, nearly perfect Gaussian beam using nothing more than a tube of gas, two mirrors, and a high-voltage discharge. No fancy crystals, no pump diodes, no nonlinear optics. Just atoms, photons, and resonance.</p>
+<p>This post walks through the physics of HeNe lasers from the ground up: why they work, what limits them, and how every design parameter follows from a handful of constraints.</p>
+<h2 id="why-neon-why-helium">Why Neon? Why Helium?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#why-neon-why-helium" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Start with the basic question: what does it take to make a gas lase?</p>
+<p>You need a <strong>population inversion</strong> — more atoms in an excited state than in a lower state, so stimulated emission dominates over absorption. In thermal equilibrium, lower states are always more populated (Boltzmann statistics), so you need some mechanism to selectively pump atoms <em>up</em> without equally populating the <em>down</em> states.</p>
+<p>Neon has a set of energy levels (labeled in Paschen notation as <code>3s2</code>, <code>2p4</code>, etc.) where certain transitions produce visible and IR photons. The famous 632.8 nm red line comes from the <code>3s2 → 2p4</code> transition. But here’s the problem: if you just run a current through pure neon, you excite atoms to <em>all</em> kinds of lower-energy states, and the 3s2 level doesn’t get preferentially populated. You get a neon sign, not a laser.</p>
+<p>This is where helium enters. Helium’s lowest excited state (<code>2s</code>) sits at almost exactly the same energy as neon’s <code>3s2</code> level — within about 0.05 eV. When you run a discharge through the He-Ne mixture, the current excites helium atoms efficiently (helium is lighter, gets knocked around more by electrons). These excited helium atoms then <strong>collide</strong> with ground-state neon atoms, and because the energy levels nearly match, the energy transfers resonantly:</p>
+<pre><code>He(2s) + Ne(ground) → He(ground) + Ne(3s2)
+</code></pre>
+<p>This is the pump mechanism. It’s elegant because:</p>
+<ol>
+<li>Helium is easy to excite (low mass, simple atom, large cross-section for electron impact)</li>
+<li>The near-resonance means the collision transfer is highly efficient</li>
+<li>The <code>3s2</code> state of neon has a lifetime ~10× longer than the <code>2p</code> states below it</li>
+</ol>
+<p>Point 3 is crucial. The upper lasing level hangs around long enough for stimulated emission to drain it, while the lower level (<code>2p4</code> for 632.8 nm) decays rapidly to the <code>1s</code> state. This lifetime ratio is what makes the population inversion <em>sustainable</em> in CW operation.</p>
+<p>The gas mixture is typically 5:1 to 10:1 helium-to-neon. Mostly helium — because it’s the intermediary that does the pumping.</p>
+<h2 id="the-bottleneck-wall-collisions">The Bottleneck: Wall Collisions<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-bottleneck-wall-collisions" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>There’s a subtlety that drives the entire mechanical design of HeNe tubes.</p>
+<p>After the <code>3s2 → 2p</code> lasing transition, neon drops to a <code>2p</code> state, which quickly decays to the <code>1s</code> state via spontaneous emission. But the <code>1s</code> state is metastable — it has a long lifetime. Neon atoms stuck in the <code>1s</code> state can’t be re-excited back to <code>3s2</code> efficiently (you’d need another helium collision, but the energy match isn’t good for <code>1s → 3s2</code>). Worse, atoms in <code>1s</code> can <em>absorb</em> photons at certain wavelengths, stealing gain.</p>
+<p>How do atoms return from <code>1s</code> to the ground state? <strong>Collisions with the tube wall.</strong></p>
+<p>This is why HeNe laser bores are narrow — typically 0.5 to 1.5 mm inner diameter. The narrow bore ensures neon atoms in the metastable <code>1s</code> state are never far from a wall. More wall collisions means faster depopulation of the bottleneck state, which means more atoms cycling back to ground and available for re-excitation.</p>
+<p>But a narrow bore also means higher diffraction losses and less gain volume. Everything in HeNe laser design is a compromise:</p>
+<ul>
+<li><strong>Narrow bore</strong> → faster <code>1s</code> depopulation → better population inversion, but less total gain volume</li>
+<li><strong>Wide bore</strong> → more gain volume, but <code>1s</code> bottleneck chokes the inversion</li>
+<li><strong>Higher current</strong> → more excitation, but above an optimum, too many atoms pile up in <code>1s</code> and output actually <em>decreases</em></li>
+<li><strong>Gas pressure</strong> → optimal pressure is inversely proportional to bore diameter (empirically: P ≈ 3.6/d Torr, where d is bore ID in mm)</li>
+</ul>
+<p>This last point means you can’t just scale everything up. A wider bore requires lower pressure, which reduces the number density of atoms, which reduces gain. The physics conspires to keep HeNe lasers fundamentally low-power devices. A typical 1 mW tube converts electrical input to light with an efficiency of about <strong>0.025%</strong>. More than 99.97% of the power goes to heating the gas and producing incoherent glow.</p>
+<h2 id="the-resonator-fabry-perot-cavity">The Resonator: Fabry-Perot Cavity<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-resonator-fabry-perot-cavity" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The gain medium alone isn’t enough. Spontaneous emission from the <code>3s2 → 2p4</code> transition shoots photons in all directions. To turn this into a laser, you need <strong>feedback</strong> — mirrors that bounce the light back and forth through the gain medium, amplifying it on each pass.</p>
+<p>Two mirrors form a Fabry-Perot resonator:</p>
+<ul>
+<li>The <strong>High Reflector (HR)</strong>: >99.9% reflective at 632.8 nm</li>
+<li>The <strong>Output Coupler (OC)</strong>: ~99% reflective, letting ~1% of the circulating power escape as the output beam</li>
+</ul>
+<p>The lasing condition is simple: if the <strong>round-trip gain exceeds the round-trip loss</strong>, oscillation builds up. For a HeNe laser, the single-pass gain is on the order of 1-10%/m at 632.8 nm (depending on tube construction and conditions). This is <em>tiny</em> compared to, say, a Nd:YAG crystal. It means the mirrors must be <em>extremely</em> good — even 0.1% extra loss can kill the laser.</p>
+<p>This is why HeNe mirrors are <strong>dielectric multilayer</strong> coatings rather than metallic. A stack of alternating thin films (each λ/4 thick) produces interference-based reflection exceeding 99.9%. Metallic mirrors can’t get close to this, and the first HeNe laser in 1960 would not have been possible without dielectric mirror technology, despite having a very long tube.</p>
+<h3 id="mirror-geometry">Mirror Geometry<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#mirror-geometry" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>The mirrors can be flat (planar) or curved (spherical). The choice matters for stability:</p>
+<ul>
+<li><strong>Planar-planar</strong>: Maximum use of the bore volume (beam fills the entire bore), but alignment is extremely critical — a fraction of a millirad of tilt and you lose the cavity</li>
+<li><strong>Confocal</strong> (radius of curvature = cavity length): Much easier to align, more forgiving of perturbations, but the beam waist is smaller, so less of the gain volume is utilized</li>
+<li><strong>Hemispherical</strong> (one flat, one curved with R ≈ L): A common practical compromise</li>
+</ul>
+<p>In practice, short commercial tubes (under ~200 mm) tend to use planar mirrors because every fraction of a percent of gain matters and alignment of a short cavity is easier. Longer tubes use at least one curved mirror for stability.</p>
+<h2 id="longitudinal-modes-its-not-monochromatic">Longitudinal Modes: It’s Not Monochromatic<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#longitudinal-modes-its-not-monochromatic" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>A Fabry-Perot cavity imposes a standing wave condition: only wavelengths where an integer number of half-wavelengths fit between the mirrors can resonate. The allowed frequencies are:</p>
+<pre><code>f_n = n × c / (2L)
+</code></pre>
+<p>where L is the mirror spacing and n is a large integer (on the order of 948,000 for L = 300 mm at 632.8 nm). The spacing between adjacent allowed modes is:</p>
+<pre><code>Δf = c / (2L)
+</code></pre>
+<p>For a 300 mm cavity, that’s about 500 MHz. For a 150 mm cavity, about 1 GHz.</p>
+<p>Now, the neon gain curve isn’t a spike — it’s Doppler-broadened into a Gaussian with a FWHM of about 1.5 GHz. So multiple longitudinal modes fall under the gain curve simultaneously. The laser oscillates on all modes where the gain exceeds the total cavity losses.</p>
+<p>The consequence:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Cavity length</th><th>Mode spacing</th><th>Typical # of modes</th></tr></thead><tbody><tr><td>150 mm</td><td>~1 GHz</td><td>1–2</td></tr><tr><td>300 mm</td><td>~500 MHz</td><td>3–4</td></tr><tr><td>400 mm</td><td>~375 MHz</td><td>4–5</td></tr><tr><td>800 mm</td><td>~188 MHz</td><td>7–8</td></tr></tbody></table></div>
+<p>Short tubes have dramatic power fluctuations as the cavity thermally expands and modes sweep through the gain curve — as much as 20% variation. Longer tubes have many modes and the variation drops below 2%.</p>
+<p>The analogy is a vibrating string: fixed at both ends, it supports only integer multiples of the half-wavelength. But where a violin string has n = 1, 2, 3, …, a HeNe cavity has n = 948,161, 948,162, 948,163, … The physics is identical; only the scale is different.</p>
+<h3 id="mode-sweep">Mode Sweep<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#mode-sweep" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>As the tube warms up and thermally expands, the cavity length L increases. This shifts all mode frequencies downward. New modes enter from the high-frequency side of the gain curve; old modes fall off the low-frequency side. The overall envelope doesn’t change, but the modes continuously slide through it. This is called <strong>mode sweep</strong> or <strong>mode cycling</strong>.</p>
+<p>An interesting quirk: in a “random polarized” HeNe tube (no internal Brewster window), adjacent longitudinal modes are orthogonally polarized. As modes sweep through the gain curve, you can observe this with a polarizer — the output power oscillates between two orthogonal polarization states. This property is actually <em>exploited</em> in stabilized HeNe lasers: by monitoring the ratio of two orthogonally polarized modes, a feedback loop can lock the cavity length to keep a mode centered on the gain peak.</p>
+<h2 id="tube-construction">Tube Construction<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#tube-construction" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>A modern internal-mirror HeNe tube is a refined piece of engineering:</p>
+<pre><code>             ____________________________________________
+            /                         _________________  \
+     Anode |\  He + Ne, 2-5 Torr       Cathode can     \  |
+     .-.---' \.--------------------------------------.  '-'---.-.     Main
+ &lt;---| |::::  :======================================:   :::::| |===> beam
+     '-'-+-. /'--------------------------------------'  .-.-+-'-'
+          | |/  Glass capillary          _______________/  | |
+          |  \____________________________________________/  |  OC mirror
+          |                                                  |
+          +---------/\/\---------o 1.2–3 kV DC o-------------+
+                     Rb
+</code></pre>
+<p>The key components:</p>
+<p><strong>Bore (capillary):</strong> A precision glass tube, 0.5–1.5 mm ID, running the length of the cavity. This is where lasing occurs. The bore must be extremely straight — any deviation causes the beam to walk off axis and miss the mirrors. On some larger tubes, the bore is ground (not polished) on the inside to suppress off-axis stimulated emission and reduce stray light.</p>
+<p><strong>Cathode:</strong> A large aluminum cylinder (“cold cathode”) extending a substantial fraction of the tube length. The large surface area distributes the ion bombardment from the discharge, minimizing sputtering damage. The cathode surface is coated with a thin oxide layer that slowly depletes over the tube’s life — this is the primary life-limiting factor. Typical lifetime: 20,000+ hours.</p>
+<p><strong>Anode:</strong> A small cylindrical electrode at the opposite end. The discharge produces little heat or sputtering here. <strong>Polarity matters</strong> — running the tube reversed will destroy the anode (now acting as a cathode with a tiny surface area) within minutes.</p>
+<p><strong>Gas fill:</strong> Helium and neon at 5:1 to 10:1 ratio, 2–5 Torr total pressure. The total amount of gas in a typical 1 mW tube is less than 1 cm³ at atmospheric pressure. It doesn’t take much contamination to kill the tube.</p>
+<p><strong>Getter:</strong> A spongy metal structure (barium or zirconium based) inside the tube that chemically absorbs stray oxygen, nitrogen, and other contaminants that outgas from surfaces or diffuse through seals. Noble gases (He, Ne) are unaffected — the getter ignores them. If the getter spot turns milky white, it’s exhausted and the tube is likely dead. Modern zirconium getters are transparent, which is why you often can’t see them.</p>
+<p><strong>Mirrors:</strong> Dielectric multilayer coatings on precision substrates, sealed directly to the tube. The HR reflects >99.9% at the lasing wavelength. The OC reflects ~99% and transmits ~1%. The OC’s outer surface has an anti-reflection coating (appears dark blue/violet) to minimize the ~4% Fresnel reflection that would otherwise occur at the glass-air interface.</p>
+<h2 id="power-requirements-and-the-negative-resistance-problem">Power Requirements and the Negative Resistance Problem<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#power-requirements-and-the-negative-resistance-problem" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>HeNe tubes need two voltage regimes:</p>
+<ol>
+<li><strong>Starting:</strong> 5–12 kV at negligible current, to initiate the gas discharge (break down the gas)</li>
+<li><strong>Operating:</strong> 1–3 kV at 3–8 mA, to sustain the discharge</li>
+</ol>
+<p>The tube exhibits <strong>negative differential resistance</strong>: as current increases, voltage across the tube <em>decreases</em>. This is a fundamental property of gas discharges — more current means more ionization means lower effective resistance.</p>
+<p>This creates an instability. If you connect a constant-voltage source to a negative-resistance load, any small perturbation in current will grow exponentially — the system runs away. The fix is a <strong>ballast resistor</strong> in series with the tube. The ballast must have a positive resistance large enough to make the total circuit resistance positive at the operating point:</p>
+<pre><code>R_supply + R_ballast + R_tube(differential) > 0
+</code></pre>
+<p>If this condition isn’t met, the tube becomes a relaxation oscillator — alternately firing and extinguishing. This is bad for the tube and the power supply.</p>
+<p>Typical ballast values are 75–150 kΩ for small tubes. The power dissipation in the ballast is significant (a 6 mA tube running at 1.5 kV through a 100 kΩ ballast dissipates 3.6 W in the resistor alone).</p>
+<h3 id="efficiency">Efficiency<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#efficiency" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>The numbers are sobering. A 2 mW HeNe tube running at 1,400 V × 6 mA consumes 8.4 W of electrical power (tube alone, excluding ballast and power supply losses). That’s 0.024% wall-plug efficiency. By comparison, a laser diode can exceed 50%.</p>
+<p>HeNe lasers survive despite this because they offer something no cheap diode can match: a near-perfect TEM₀₀ Gaussian beam with excellent coherence length, no astigmatism, and wavelength stability to a few parts in 10⁸ without active stabilization. For interferometry, holography, and precision metrology, these properties matter more than raw efficiency.</p>
+<h2 id="available-wavelengths">Available Wavelengths<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#available-wavelengths" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The 632.8 nm red line is the most common, but neon has many transitions from the 3s2 upper state to various 2p lower states:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Wavelength</th><th>Color</th><th>Gain (%/m)</th><th>Max power (mW)</th></tr></thead><tbody><tr><td>543.5 nm</td><td>Green</td><td>~0.5</td><td>2–5</td></tr><tr><td>594.1 nm</td><td>Yellow</td><td>~0.5</td><td>7–10</td></tr><tr><td>611.9 nm</td><td>Orange</td><td>~1.7</td><td>7</td></tr><tr><td>632.8 nm</td><td>Red</td><td>~10</td><td>75–200</td></tr><tr><td>1,152 nm</td><td>Near-IR</td><td>—</td><td>1.5</td></tr><tr><td>1,523 nm</td><td>Near-IR</td><td>~0.5</td><td>1.0</td></tr><tr><td>3,391 nm</td><td>Mid-IR</td><td>~440</td><td>24</td></tr></tbody></table></div>
+<p>The gain column tells the story. Red at 632.8 nm dominates because it has the highest visible-range gain. Green (543.5 nm) has ~20× less gain, which is why green HeNe lasers are more expensive, lower power, and require longer tubes with better mirrors.</p>
+<p>The 3,391 nm mid-IR line is remarkable: its gain is so enormous (~440%/m, or 100×+ round-trip amplification per meter) that it can operate <strong>superradiantly</strong> — without mirrors at all. Some commercial 3,391 nm HeNe lasers use an output coupler with only 60% reflectivity. This line actually <em>competes</em> with the visible lines in long tubes, stealing population from the shared upper level. High-power visible HeNe lasers often include magnets around the tube to Zeeman-split the 3,391 nm line, broadening it enough to push it below threshold and suppress the parasitic oscillation.</p>
+<p>An interesting note: 632.8 nm is <em>not</em> one of the stronger lines in the neon emission spectrum. The strongest red neon line is at 640.2 nm. The 632.8 nm line appears quite weak in an ordinary neon discharge because the upper energy levels involved are very high (~20 eV). The helium collision-pumping mechanism is what makes it dominant in a HeNe laser — without helium, this transition would be negligible.</p>
+<h2 id="safety-the-beam-and-the-supply">Safety: The Beam and the Supply<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#safety-the-beam-and-the-supply" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>HeNe lasers below 5 mW are Class IIIa or lower — the blink reflex protects your eyes from brief exposures, and scattered light is not hazardous.</p>
+<p>The real danger is the <strong>power supply</strong>. HeNe supplies operate at 1–12 kV, and the capacitors hold charge for a long time after power-off. A small HeNe tube looks innocuous, but the stored energy is enough to deliver a serious jolt. One experienced laser technician nearly died from grabbing the clips on a small coaxial HeNe tube the morning after powering it off, assuming the supply had discharged overnight. It hadn’t.</p>
+<p>The safe procedure: after powering off, drain stored charge through a string of series resistors (ten 100 kΩ / 2W metal film resistors in a glass tube works well), then confirm with a voltmeter before touching anything. Never use the screwdriver-short trick — it can damage the supply.</p>
+<p>And never pull off the rear end-cap of a laser head while it’s powered. On many laser heads (JDS Uniphase, Melles Griot), the aluminum cylinder is the cathode return via a spring contact inside the end-cap. Remove it while running and <em>you</em> become the return path.</p>
+<h2 id="why-hene-still-matters">Why HeNe Still Matters<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#why-hene-still-matters" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>In an era of cheap laser diodes, HeNe lasers still ship in the hundreds of thousands per year. The reason is beam quality. A bare edge-emitting laser diode produces an astigmatic, elliptical beam. Correcting it to HeNe quality requires expensive optics. A $50 surplus HeNe tube produces a circular TEM₀₀ beam with a coherence length measured in meters, stable to a few MHz without any feedback — out of the box.</p>
+<p>For interferometry, holography, spectroscopy, and precision alignment, the HeNe laser remains the standard against which everything else is measured. The physics that limits its efficiency — narrow bore, low pressure, milliwatt output — is the same physics that gives it unmatched beam quality. The constraints aren’t bugs; they’re the reason it works.</p>
+<h2 id="references">References<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#references" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<ul>
+<li>Samuel M. Goldwasser, <em>Sam’s Laser FAQ</em> (1994–2010) — the definitive reference for HeNe laser hobbyists and engineers</li>
+<li>“The Amateur Scientist: Helium-Neon Laser”, <em>Scientific American</em>, September 1964</li>
+<li>Mark Csele, <em>Fundamentals of Light Sources and Lasers</em> (Wiley-Interscience, 2004)</li>
+<li>Jeff Hecht, <em>The Laser Guidebook</em> (McGraw-Hill, 2nd ed.)</li>
+</ul></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#why-neon-why-helium" data-for="why-neon-why-helium">Why Neon? Why Helium?</a></li><li class="depth-0"><a href="#the-bottleneck-wall-collisions" data-for="the-bottleneck-wall-collisions">The Bottleneck: Wall Collisions</a></li><li class="depth-0"><a href="#the-resonator-fabry-perot-cavity" data-for="the-resonator-fabry-perot-cavity">The Resonator: Fabry-Perot Cavity</a></li><li class="depth-1"><a href="#mirror-geometry" data-for="mirror-geometry">Mirror Geometry</a></li><li class="depth-0"><a href="#longitudinal-modes-its-not-monochromatic" data-for="longitudinal-modes-its-not-monochromatic">Longitudinal Modes: It’s Not Monochromatic</a></li><li class="depth-1"><a href="#mode-sweep" data-for="mode-sweep">Mode Sweep</a></li><li class="depth-0"><a href="#tube-construction" data-for="tube-construction">Tube Construction</a></li><li class="depth-0"><a href="#power-requirements-and-the-negative-resistance-problem" data-for="power-requirements-and-the-negative-resistance-problem">Power Requirements and the Negative Resistance Problem</a></li><li class="depth-1"><a href="#efficiency" data-for="efficiency">Efficiency</a></li><li class="depth-0"><a href="#available-wavelengths" data-for="available-wavelengths">Available Wavelengths</a></li><li class="depth-0"><a href="#safety-the-beam-and-the-supply" data-for="safety-the-beam-and-the-supply">Safety: The Beam and the Supply</a></li><li class="depth-0"><a href="#why-hene-still-matters" data-for="why-hene-still-matters">Why HeNe Still Matters</a></li><li class="depth-0"><a href="#references" data-for="references">References</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li>No backlinks found</li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2026</p><ul><li><a href="https://github.com/twigslot/twigslot.github.io">GitHub</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../postscript.js" type="module"></script></html>
