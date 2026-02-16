@@ -14,7 +14,7 @@ title: motivating everything
 - [[programming-languages/2026-02-15-setoid-hell|Setoid Hell: A Minimal Comparison Across Proof Assistants]] (2026-02-15)
 - [[programming-languages/2026-02-15-exploring-clangd|Exploring clangd]] (2026-02-15)
 
-## Misc
+## Fun with Hardware
 
 - [[fun-with-hardware/2026-02-17-hene-laser|Helium-Neon Lasers from First Principles]] (2026-02-17)
 
