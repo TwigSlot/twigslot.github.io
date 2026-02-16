@@ -4,6 +4,7 @@ title: motivating everything
 
 ## New
 
+- [[performance-engineering/2026-02-16-megaeth|MegaETH: Dissecting a Real-Time Ethereum L2]] (2026-02-16)
 - [[programming-languages/2026-02-15-setoid-hell|Setoid Hell: A Minimal Comparison Across Proof Assistants]] (2026-02-15)
 - [[programming-languages/2026-02-15-exploring-clangd|Exploring clangd]] (2026-02-15)
 - [[performance-engineering/2026-02-16-firedancer|Firedancer: A Deep Dive into Solana's C Validator]] (2026-02-16)
