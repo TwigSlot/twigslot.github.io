@@ -19,6 +19,8 @@ title: motivating everything
 
 ## Misc
 
+- [[misc/2026-02-17-cpp26-reflection|C++26 Static Reflection: What P2996 Actually Gives Us]] (2026-02-17)
+- [[misc/2026-02-17-mrna-vaccines|mRNA Vaccines: From Immunological Curiosity to Pandemic Countermeasure]] (2026-02-17)
 - [[misc/2026-02-17-init-systems|Init Systems, Daemon Spawning, and the Performance Cost of Process Management]] (2026-02-17)
 
 ## Old blogs

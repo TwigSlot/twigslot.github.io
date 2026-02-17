@@ -12,6 +12,12 @@
     <description>The helium-neon laser is the most elegant gas laser ever engineered. It produces a continuous, stable, nearly perfect Gaussian beam using nothing more than a tube of gas, two mirrors, and a high-voltage discharge.</description>
     <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
   </item><item>
+    <title>C++26 Static Reflection: What P2996 Actually Gives Us</title>
+    <link>https://twigslot.github.io/misc/2026-02-17-cpp26-reflection</link>
+    <guid>https://twigslot.github.io/misc/2026-02-17-cpp26-reflection</guid>
+    <description>...</description>
+    <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
+  </item><item>
     <title>Init Systems, Daemon Spawning, and the Performance Cost of Process Management</title>
     <link>https://twigslot.github.io/misc/2026-02-17-init-systems</link>
     <guid>https://twigslot.github.io/misc/2026-02-17-init-systems</guid>
@@ -57,12 +63,6 @@
     <title>AI Research</title>
     <link>https://twigslot.github.io/ai-research/</link>
     <guid>https://twigslot.github.io/ai-research/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
-  </item><item>
-    <title>Old Blog</title>
-    <link>https://twigslot.github.io/old-blog/</link>
-    <guid>https://twigslot.github.io/old-blog/</guid>
     <description></description>
     <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
   </item>
