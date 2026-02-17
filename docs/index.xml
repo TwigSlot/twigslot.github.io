@@ -18,6 +18,12 @@
     <description>Most of us type systemctl start myservice and move on. The service starts, it runs in the background, it restarts if it crashes. We don’t think about what’s happening underneath because systemd has made daemon management feel trivial.</description>
     <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
   </item><item>
+    <title>mRNA Vaccines: From Immunological Curiosity to Pandemic Countermeasure</title>
+    <link>https://twigslot.github.io/misc/2026-02-17-mrna-vaccines</link>
+    <guid>https://twigslot.github.io/misc/2026-02-17-mrna-vaccines</guid>
+    <description>The development of mRNA vaccines against SARS-CoV-2 is often presented as an overnight success. It wasn’t. The core platform rested on decades of work solving fundamental problems in RNA biochemistry, innate immune evasion, lipid nanoparticle formulation, and antigen design.</description>
+    <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
+  </item><item>
     <title>motivating everything</title>
     <link>https://twigslot.github.io/</link>
     <guid>https://twigslot.github.io/</guid>
@@ -57,12 +63,6 @@
     <title>Old Blog</title>
     <link>https://twigslot.github.io/old-blog/</link>
     <guid>https://twigslot.github.io/old-blog/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
-  </item><item>
-    <title>Performance Engineering</title>
-    <link>https://twigslot.github.io/performance-engineering/</link>
-    <guid>https://twigslot.github.io/performance-engineering/</guid>
     <description></description>
     <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
   </item>
