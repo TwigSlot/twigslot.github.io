@@ -15,6 +15,7 @@ title: motivating everything
 
 ## Fun with Hardware
 
+- [[fun-with-hardware/2026-02-18-yosys|Yosys: Open-Source RTL Synthesis from the Inside]] (2026-02-18)
 - [[fun-with-hardware/2026-02-17-hene-laser|Helium-Neon Lasers from First Principles]] (2026-02-17)
 
 ## Misc

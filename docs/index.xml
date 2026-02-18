@@ -6,6 +6,18 @@
       <description>Last 10 notes on twigslot</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>motivating everything</title>
+    <link>https://twigslot.github.io/</link>
+    <guid>https://twigslot.github.io/</guid>
+    <description>Performance Engineering MegaETH: Dissecting a Real-Time Ethereum L2 (2026-02-16) Firedancer: A Deep Dive into Solana’s C Validator (2026-02-16) Notes on software performance ...</description>
+    <pubDate>Wed, 18 Feb 2026 15:09:54 GMT</pubDate>
+  </item><item>
+    <title>Yosys: Open-Source RTL Synthesis from the Inside</title>
+    <link>https://twigslot.github.io/fun-with-hardware/2026-02-18-yosys</link>
+    <guid>https://twigslot.github.io/fun-with-hardware/2026-02-18-yosys</guid>
+    <description>If you have ever written Verilog and wondered what happens between always @(posedge clk) and the bitstream that programs an FPGA, the answer is a synthesis tool ...</description>
+    <pubDate>Wed, 18 Feb 2026 00:00:00 GMT</pubDate>
+  </item><item>
     <title>Helium-Neon Lasers from First Principles</title>
     <link>https://twigslot.github.io/fun-with-hardware/2026-02-17-hene-laser</link>
     <guid>https://twigslot.github.io/fun-with-hardware/2026-02-17-hene-laser</guid>
@@ -30,12 +42,6 @@
     <description>The development of mRNA vaccines against SARS-CoV-2 is often presented as an overnight success. It wasn’t. The core platform rested on decades of work solving fundamental problems in RNA biochemistry, innate immune evasion, lipid nanoparticle formulation, and antigen design.</description>
     <pubDate>Tue, 17 Feb 2026 00:00:00 GMT</pubDate>
   </item><item>
-    <title>motivating everything</title>
-    <link>https://twigslot.github.io/</link>
-    <guid>https://twigslot.github.io/</guid>
-    <description>Performance Engineering MegaETH: Dissecting a Real-Time Ethereum L2 (2026-02-16) Firedancer: A Deep Dive into Solana’s C Validator (2026-02-16) Notes on software performance ...</description>
-    <pubDate>Mon, 16 Feb 2026 21:15:56 GMT</pubDate>
-  </item><item>
     <title>Firedancer: A Deep Dive into the Fastest Solana Validator</title>
     <link>https://twigslot.github.io/performance-engineering/2026-02-16-firedancer</link>
     <guid>https://twigslot.github.io/performance-engineering/2026-02-16-firedancer</guid>
@@ -57,12 +63,6 @@
     <title>Fun with Hardware</title>
     <link>https://twigslot.github.io/fun-with-hardware/</link>
     <guid>https://twigslot.github.io/fun-with-hardware/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
-  </item><item>
-    <title>AI Research</title>
-    <link>https://twigslot.github.io/ai-research/</link>
-    <guid>https://twigslot.github.io/ai-research/</guid>
     <description></description>
     <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
   </item>
