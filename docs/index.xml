@@ -6,6 +6,12 @@
       <description>Last 10 notes on twigslot</description>
       <generator>Quartz -- quartz.jzhao.xyz</generator>
       <item>
+    <title>Making Full-Context AlphaGenome Fit on an RTX 3090</title>
+    <link>https://twigslot.github.io/ai-research/2026-08-19-alphagenome-rtx-3090</link>
+    <guid>https://twigslot.github.io/ai-research/2026-08-19-alphagenome-rtx-3090</guid>
+    <description>Making Full-Context AlphaGenome Fit on an RTX 3090 AlphaGenome is one of those models that makes you want to try it locally and then immediately reminds you that “open weights” and ...</description>
+    <pubDate>Wed, 19 Aug 2026 00:00:00 GMT</pubDate>
+  </item><item>
     <title>motivating everything</title>
     <link>https://twigslot.github.io/</link>
     <guid>https://twigslot.github.io/</guid>
@@ -57,12 +63,6 @@
     <title>Programming Languages</title>
     <link>https://twigslot.github.io/programming-languages/</link>
     <guid>https://twigslot.github.io/programming-languages/</guid>
-    <description></description>
-    <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
-  </item><item>
-    <title>Fun with Hardware</title>
-    <link>https://twigslot.github.io/fun-with-hardware/</link>
-    <guid>https://twigslot.github.io/fun-with-hardware/</guid>
     <description></description>
     <pubDate>Sun, 15 Feb 2026 16:03:26 GMT</pubDate>
   </item>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>Making Full-Context AlphaGenome Fit on an RTX 3090</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM Plex Mono&amp;family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;display=swap"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta property="og:title" content="Making Full-Context AlphaGenome Fit on an RTX 3090"/><meta property="og:description" content="Making Full-Context AlphaGenome Fit on an RTX 3090 AlphaGenome is one of those models that makes you want to try it locally and then immediately reminds you that “open weights” and ..."/><meta property="og:image" content="https://twigslot.github.io/static/og-image.png"/><meta property="og:width" content="1200"/><meta property="og:height" content="675"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="Making Full-Context AlphaGenome Fit on an RTX 3090 AlphaGenome is one of those models that makes you want to try it locally and then immediately reminds you that “open weights” and ..."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script></head><body data-slug="ai-research/2026-08-19-alphagenome-rtx-3090"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h1 class="page-title"><a href="..">twigslot</a></h1><div class="spacer mobile-only"></div><div class="search"><div id="search-icon"><p>Search</p><div></div><svg tabindex="0" aria-labelledby="title desc" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title id="title">Search</title><desc id="desc">Search</desc><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></div><div id="search-container"><div id="search-space"><input autocomplete="off" id="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div id="search-layout" data-preview="true"></div></div></div></div><div class="darkmode"><input class="toggle" id="darkmode-toggle" type="checkbox" tabindex="-1"/><label id="toggle-label-light" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg></label><label id="toggle-label-dark" for="darkmode-toggle" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></label></div><div class="explorer desktop-only"><button type="button" id="explorer" data-behavior="collapse" data-collapsed="collapsed" data-savestate="true" data-tree="[{&quot;path&quot;:&quot;ai-research&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;fun-with-hardware&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;misc&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;old-blog&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;performance-engineering&quot;,&quot;collapsed&quot;:true},{&quot;path&quot;:&quot;programming-languages&quot;,&quot;collapsed&quot;:true}]"><h1>Explorer</h1><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="explorer-content"><ul class="overflow" id="explorer-ul"><li><div class="folder-outer open"><ul style="padding-left:0;" class="content" data-folderul><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="ai-research"><button class="folder-button"><span class="folder-title">AI Research</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="ai-research"><li><a href="../ai-research/2026-08-19-alphagenome-rtx-3090" data-for="ai-research/2026-08-19-alphagenome-rtx-3090">Making Full-Context AlphaGenome Fit on an RTX 3090</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="fun-with-hardware"><button class="folder-button"><span class="folder-title">Fun with Hardware</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="fun-with-hardware"><li><a href="../fun-with-hardware/2026-02-17-hene-laser" data-for="fun-with-hardware/2026-02-17-hene-laser">Helium-Neon Lasers from First Principles</a></li><li><a href="../fun-with-hardware/2026-02-18-yosys" data-for="fun-with-hardware/2026-02-18-yosys">Yosys: Open-Source RTL Synthesis from the Inside</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="misc"><button class="folder-button"><span class="folder-title">misc</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="misc"><li><a href="../misc/2026-02-17-cpp26-reflection" data-for="misc/2026-02-17-cpp26-reflection">C++26 Static Reflection: What P2996 Actually Gives Us</a></li><li><a href="../misc/2026-02-17-init-systems" data-for="misc/2026-02-17-init-systems">Init Systems, Daemon Spawning, and the Performance Cost of Process Management</a></li><li><a href="../misc/2026-02-17-mrna-vaccines" data-for="misc/2026-02-17-mrna-vaccines">mRNA Vaccines: From Immunological Curiosity to Pandemic Countermeasure</a></li></ul></div></li><li><div class="folder-outer "><ul style="padding-left:0;" class="content" data-folderul></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="old-blog"><button class="folder-button"><span class="folder-title">Old Blog</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="old-blog"><li><a href="../old-blog/2023-03-14-rbac" data-for="old-blog/2023-03-14-rbac">Adding Users to Kubernetes (RBAC)</a></li><li><a href="../old-blog/Bitcoin" data-for="old-blog/Bitcoin">Bitcoin</a></li><li><a href="../old-blog/Builder-Markets" data-for="old-blog/Builder-Markets">Builder Markets</a></li><li><a href="../old-blog/2023-05-02-cech" data-for="old-blog/2023-05-02-cech">Čech Cohomology for Physicists</a></li><li><a href="../old-blog/2023-01-31-minimal-kernel" data-for="old-blog/2023-01-31-minimal-kernel">Compiling and Running a Minimal Kernel with Busybox</a></li><li><a href="../old-blog/2023-02-28-susy" data-for="old-blog/2023-02-28-susy">Counting Supersymmetry Generators</a></li><li><a href="../old-blog/2023-12-28-aws-lambda-bash" data-for="old-blog/2023-12-28-aws-lambda-bash">Custom Binaries on AWS Lambda + Poking Around (Bonus)</a></li><li><a href="../old-blog/2023-04-27-ehresmann" data-for="old-blog/2023-04-27-ehresmann">Ehresmann Connection and Gauge Theory</a></li><li><a href="../old-blog/2023-10-05-qemu" data-for="old-blog/2023-10-05-qemu">Fun with QEMU Arguments and Character Devices</a></li><li><a href="../old-blog/2023-04-28-covariant-derivative" data-for="old-blog/2023-04-28-covariant-derivative">Koszul Connection and Covariant Derivative</a></li><li><a href="../old-blog/2023-06-22-expander" data-for="old-blog/2023-06-22-expander">LaTeX Expander</a></li><li><a href="../old-blog/2023-08-13-kernel-notes" data-for="old-blog/2023-08-13-kernel-notes">My Kernel Notes (Old)</a></li><li><a href="../old-blog/2023-02-22-Tphi-OPE" data-for="old-blog/2023-02-22-Tphi-OPE">Operator Product Expansion for $T\phi$</a></li><li><a href="../old-blog/2023-08-13-xv6" data-for="old-blog/2023-08-13-xv6">Playing with xv6</a></li><li><a href="../old-blog/2023-02-19-propagator" data-for="old-blog/2023-02-19-propagator">Propagators in Massive Scalar Field Theory (Poster)</a></li><li><a href="../old-blog/2024-01-07-renormalization" data-for="old-blog/2024-01-07-renormalization">Reviewing Renormalization Resources (in QFT)</a></li><li><a href="../old-blog/2023-03-06-ssl" data-for="old-blog/2023-03-06-ssl">Setting Up SSL Manually on Kubernetes Traefik: ACME DNS Challenge</a></li><li><a href="../old-blog/2023-06-20-ssl-2" data-for="old-blog/2023-06-20-ssl-2">Setting Up SSL Manually on Kubernetes Traefik: ACME HTTP Challenge</a></li><li><a href="../old-blog/2023-03-29-special-relativity" data-for="old-blog/2023-03-29-special-relativity">SPOT Talk: Special Relativity</a></li><li><a href="../old-blog/2023-01-31-teaching-qft" data-for="old-blog/2023-01-31-teaching-qft">Teaching Quantum Field Theory</a></li><li><a href="../old-blog/2023-02-27-weylanomaly" data-for="old-blog/2023-02-27-weylanomaly">Why $D=26$ in Bosonic String Theory</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="performance-engineering"><button class="folder-button"><span class="folder-title">Performance Engineering</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="performance-engineering"><li><a href="../performance-engineering/2026-02-16-firedancer" data-for="performance-engineering/2026-02-16-firedancer">Firedancer: A Deep Dive into the Fastest Solana Validator</a></li><li><a href="../performance-engineering/2026-02-16-megaeth" data-for="performance-engineering/2026-02-16-megaeth">MegaETH: Dissecting a Real-Time Ethereum L2</a></li><li><a href="../performance-engineering/2026-02-15-perf" data-for="performance-engineering/2026-02-15-perf">Taming the Noise: How to Get Reliable Performance Measurements on Linux</a></li></ul></div></li><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div data-folderpath="programming-languages"><button class="folder-button"><span class="folder-title">Programming Languages</span></button></div></div><div class="folder-outer "><ul style="padding-left:1.4rem;" class="content" data-folderul="programming-languages"><li><a href="../programming-languages/2026-02-15-exploring-clangd" data-for="programming-languages/2026-02-15-exploring-clangd">Exploring Clangd: Why It Eats All Your RAM and What We Can Do About It</a></li><li><a href="../programming-languages/2026-02-15-setoid-hell" data-for="programming-languages/2026-02-15-setoid-hell">Setoid Hell: A Minimal Comparison Across Proof Assistants</a></li></ul></div></li></ul></div></li><li id="explorer-end"></li></ul></div></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../ai-research/">AI Research</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>Making Full-Context AlphaGenome Fit on an RTX 3090</a></div></nav><h1 class="article-title">Making Full-Context AlphaGenome Fit on an RTX 3090</h1><p show-comma="true" class="content-meta"><span>Aug 19, 2026</span><span>12 min read</span></p><ul class="tags"><li><a href="../tags/ai-research" class="internal tag-link">ai-research</a></li><li><a href="../tags/performance-engineering" class="internal tag-link">performance-engineering</a></li><li><a href="../tags/genomics" class="internal tag-link">genomics</a></li><li><a href="../tags/gpu" class="internal tag-link">gpu</a></li><li><a href="../tags/jax" class="internal tag-link">jax</a></li></ul></div></div><article class="popover-hint"><h1 id="making-full-context-alphagenome-fit-on-an-rtx-3090">Making Full-Context AlphaGenome Fit on an RTX 3090<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#making-full-context-alphagenome-fit-on-an-rtx-3090" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<p>AlphaGenome is one of those models that makes you want to try it locally and
+then immediately reminds you that “open weights” and “fits on my GPU” are not
+the same thing.</p>
+<p>The model takes up to one million DNA base pairs and predicts thousands of
+functional genomic signals: RNA expression, chromatin accessibility, histone
+marks, transcription-factor binding, splicing, and contact maps. That long
+context is not ornamental. Regulatory elements can act over large genomic
+distances, so cropping the sequence can remove exactly the interaction one is
+trying to study. The <a href="https://www.nature.com/articles/s41586-025-10014-0" class="external">AlphaGenome paper<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>
+reports a 1 Mb input and outputs across 11 modalities; the
+<a href="https://github.com/google-deepmind/alphagenome_research" class="external">released research code<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>
+recommends at least an NVIDIA H100.</p>
+<p>I had an RTX 3090 with 24 GiB of memory.</p>
+<p>This post is about how I got the released AlphaGenome checkpoint to execute its
+full 1,048,576 bp trunk and RNA head on that card. The short version is that I
+did not make the model smaller. I replaced one memory-hungry implementation of
+attention with a tiled online-softmax kernel, written in JAX Pallas, that is
+similar in spirit to FlashAttention and understands AlphaGenome’s unusual
+learned pair bias.</p>
+<p>The final run used 12,530 MiB of sampled process VRAM and took a median 1.511
+seconds for a synchronized warm RNA-head execution. There are important
+qualifications behind that sentence, and I will get to all of them.</p>
+<hr/>
+<h2 id="the-first-idea-was-not-the-best-idea">The first idea was not the best idea<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-first-idea-was-not-the-best-idea" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>I did not begin by writing a GPU kernel. My first project was adaptive context:
+run a cheap short-context prediction, escalate difficult examples to a longer
+window, and avoid paying for 524 kb on every variant.</p>
+<p>That experiment was useful precisely because the answer was not especially
+flattering. On a held-out set of 500 GTEx eQTL variants, a fixed 131 kb-to-524
+kb missingness policy recovered the 524 kb reference’s coverage while invoking
+the long context for 15.8% of variants. It saved 53.24% of the measured GPU time
+relative to always running 524 kb. But it was 41.53% slower than simply always
+running 131 kb, and its conditional biological rank correlation was lower than
+the 524 kb reference. A three-stage 16/131/524 kb cascade was worse as a systems
+idea: the mandatory early passes ate almost all the savings, leaving only 2.64%
+versus always-524 kb.</p>
+<p>So the adaptive policy bought coverage, not a clean general speedup. It also
+left the awkward fact that my “teacher” was only 524 kb because the 1 Mb model
+did not fit.</p>
+<p>That failure changed the question. Instead of asking <em>which examples can avoid
+the expensive model?</em>, I started asking <em>why is the exact model expensive in
+the first place?</em></p>
+<h2 id="profiling-pointed-at-one-very-large-object">Profiling pointed at one very large object<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#profiling-pointed-at-one-very-large-object" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>AlphaGenome compresses the one-million-base input before its sequence
+transformer. At full context, the transformer sees 8,192 positions. Its
+sequence attention has eight query heads, with shared keys and values.</p>
+<p>A dense FP32 attention tensor therefore has shape:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="text" data-theme="github-light github-dark"><code data-language="text" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>[batch, heads, query positions, key positions]</span></span>
+<span data-line><span>[1,     8,     8192,            8192]  = 2 GiB</span></span></code></pre></figure>
+<p>That is one tensor. The StableHLO contained this shape through the learned-bias,
+logit, soft-cap, and softmax path in each of nine transformer blocks. The dense
+pair bias was another costly surprise: a compact pair representation was
+projected and then repeated 16 times along both sequence axes to make the full
+attention bias.</p>
+<p>The attention <em>arithmetic</em> is quadratic, and this work does not change that.
+The important observation is that attention does not need quadratic <em>working
+memory</em>. We do not need to keep the complete logit or probability matrix if we
+can process it a tile at a time.</p>
+<p>This is the central idea behind
+<a href="https://proceedings.neurips.cc/paper_files/paper/2022/hash/67d57c32e20fd0a7a302cb81d36e40d5-Abstract-Conference.html" class="external">FlashAttention<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>:
+reorder exact attention around the GPU memory hierarchy so that blocks of the
+matrix pass through fast on-chip memory, rather than repeatedly writing the
+whole matrix to high-bandwidth memory. FlashAttention itself is established
+work. My problem was making the idea fit AlphaGenome’s attention equation.</p>
+<h2 id="why-stock-flashattention-was-not-a-drop-in-replacement">Why stock FlashAttention was not a drop-in replacement<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#why-stock-flashattention-was-not-a-drop-in-replacement" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>AlphaGenome’s sequence attention is not the usual <code>softmax(QK^T)V</code> call.
+For the released checkpoint, the relevant tensors are:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="text" data-theme="github-light github-dark"><code data-language="text" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>Q: [B, S, 8, 128]</span></span>
+<span data-line><span>K: [B, S, 1, 128]   shared across query heads</span></span>
+<span data-line><span>V: [B, S, 1, 192]   shared, and wider than K</span></span></code></pre></figure>
+<p>It also has a learned bias from pair features. The compact bias has one cell per
+16 sequence positions on each axis. In the original dense implementation, each
+cell is repeated over a 16 x 16 square. Finally, AlphaGenome soft-caps logits
+before softmax:</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">ij</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="mord">5</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop">tanh</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.692em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">5</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.7848em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal">Q</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.07153em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8413em;"><span style="top:-2.4413em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">T</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3948em;"><span></span></span></span></span></span></span><span class="mord">/</span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9072em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord" style="padding-left:0.833em;"><span class="mord">128</span></span></span><span style="top:-2.8672em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail" style="min-width:0.853em;height:1.08em;"><svg xmlns="http://www.w3.org/2000/svg" width="400em" height="1.08em" viewBox="0 0 400000 1080" preserveAspectRatio="xMinYMin slice"><path d="M95,702
+c-2.7,0,-7.17,-2.7,-13.5,-8c-5.8,-5.3,-9.5,-10,-9.5,-14
+c0,-2,0.3,-3.3,1,-4c1.3,-2.7,23.83,-20.7,67.5,-54
+c44.2,-33.3,65.8,-50.3,66.5,-51c1.3,-1.3,3,-2,5,-2c4.7,0,8.7,3.3,12,10
+s173,378,173,378c0.7,0,35.3,-71,104,-213c68.7,-142,137.5,-285,206.5,-429
+c69,-144,104.5,-217.7,106.5,-221
+l0 -0
+c5.3,-9.3,12,-14,20,-14
+H400000v40H845.2724
+s-225.272,467,-225.272,467s-235,486,-235,486c-2.7,4.7,-9,7,-19,7
+c-6,0,-10,-1,-12,-3s-194,-422,-194,-422s-65,47,-65,47z
+M834 80h400000v40h-400000z"></path></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1328em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal">b</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.5198em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">⌊</span><span class="mord mathnormal mtight">i</span><span class="mord mtight">/16</span><span class="mclose mtight">⌋</span><span class="mpunct mtight">,</span><span class="mopen mtight">⌊</span><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span><span class="mord mtight">/16</span><span class="mclose mtight">⌋</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3552em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size4">)</span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord">.</span></span></span></span></span>
+<p>Any replacement had to preserve all of that:</p>
+<ol>
+<li>multi-query attention with eight query heads but one K/V head;</li>
+<li>a 128-wide Q/K and a 192-wide value;</li>
+<li>the checkpoint’s learned pair bias;</li>
+<li>the 16-position nearest-neighbour bias expansion;</li>
+<li>the tanh soft cap before softmax; and</li>
+<li>BF16 matrix products with FP32 accumulation.</li>
+</ol>
+<p>Ignoring the bias would have made a wonderfully small program that computed the
+wrong model.</p>
+<h2 id="online-softmax-one-block-at-a-time">Online softmax, one block at a time<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#online-softmax-one-block-at-a-time" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The kernel assigns one GPU program to a batch, head, and 64-position query
+tile. It holds that query tile fixed and walks over the keys and values in
+64-position tiles.</p>
+<p>For each row it maintains only three pieces of FP32 state:</p>
+<ul>
+<li>the largest logit seen so far, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">m</span></span></span></span>;</li>
+<li>the running softmax denominator, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">d</span></span></span></span>; and</li>
+<li>the running weighted-value numerator, <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span>.</li>
+</ul>
+<p>Suppose a new key tile has row maximum <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>. The stable update is:</p>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8019em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></span>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8019em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0758em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9925em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278em;"><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.4638em;vertical-align:-1.4138em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4138em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9925em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278em;"><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>
+<span class="katex-display"><span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8019em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8019em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0758em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9925em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278em;"><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.4638em;vertical-align:-1.4138em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8723em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4138em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.9925em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3281em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8278em;"><span style="top:-2.931em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.22222em;">V</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.2222em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span>
+<p>After the final key tile, the output is <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">n</span><span class="mord">/</span><span class="mord mathnormal">d</span></span></span></span>. This is the same softmax, apart
+from normal floating-point reordering; it is not a sparse or approximate
+attention method.</p>
+<p>The bias is never expanded globally. For query position <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em;"></span><span class="mord mathnormal">i</span></span></span></span> and key position
+<span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.854em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.05724em;">j</span></span></span></span>, the kernel loads the compact cell at
+<code>bias[i // 16, j // 16]</code> for the current 64 x 64 tile, adds it to the dot
+product, and applies the soft cap. The largest sequence-sized temporary inside
+the kernel is gone.</p>
+<p>The development path was deliberately boring:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="text" data-theme="github-light github-dark"><code data-language="text" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>dense implementation</span></span>
+<span data-line><span>        |</span></span>
+<span data-line><span>        v</span></span>
+<span data-line><span>pure-JAX tiled oracle</span></span>
+<span data-line><span>        |</span></span>
+<span data-line><span>        v</span></span>
+<span data-line><span>Pallas/Triton 64 x 64 kernel</span></span>
+<span data-line><span>        |</span></span>
+<span data-line><span>        v</span></span>
+<span data-line><span>opt-in AlphaGenome backend</span></span>
+<span data-line><span>        |</span></span>
+<span data-line><span>        v</span></span>
+<span data-line><span>16 kb -> 131 kb -> 524 kb -> guarded 1 Mb run</span></span></code></pre></figure>
+<p>The original dense backend remains the default. The tiled backend uses the same
+Haiku parameter and state tree, so the released checkpoint does not need to be
+converted. It is currently inference-only and specialized to AlphaGenome’s
+actual 128/192 dimensions and full 64-position tiles.</p>
+<h2 id="correctness-before-the-heroic-run">Correctness before the heroic run<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#correctness-before-the-heroic-run" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Memory optimization is not useful if it quietly changes the biology. I used a
+progressive validation ladder rather than jumping directly to a result that the
+dense path could not check on this GPU.</p>
+<p>On randomized standalone attention at sequence length 512, the Pallas kernel’s
+maximum absolute error against dense attention was 0.001953125, the mean error
+was roughly <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">2.4</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">7</span></span></span></span></span></span></span></span></span></span></span></span>, and cosine similarity was effectively one.</p>
+<p>Then I loaded one checkpoint state and compared the dense and tiled full model
+on identical deterministic inputs:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th style="text-align:right;">Input</th><th>Output</th><th style="text-align:right;">Elements outside tolerance</th><th style="text-align:right;">Maximum absolute error</th></tr></thead><tbody><tr><td style="text-align:right;">131,072 bp</td><td>RNA</td><td style="text-align:right;">0 / 100,663,296</td><td style="text-align:right;">0.0078125</td></tr><tr><td style="text-align:right;">131,072 bp</td><td>trunk</td><td style="text-align:right;">7 / 204,996,608</td><td style="text-align:right;">0.125</td></tr><tr><td style="text-align:right;">524,288 bp</td><td>RNA</td><td style="text-align:right;">0 / 402,653,184</td><td style="text-align:right;">0.009765625</td></tr><tr><td style="text-align:right;">524,288 bp</td><td>trunk</td><td style="text-align:right;">15 / 826,277,888</td><td style="text-align:right;">0.125</td></tr></tbody></table></div>
+<p>The tolerance was <code>atol=0.02, rtol=0.02</code>, with a predeclared hard maximum error
+of 0.1. This means the 131 kb and 524 kb source reports formally failed because
+of the rare 0.125 trunk outliers. I kept those reports failed. Separate,
+hash-bound engineering adjudications allowed the memory experiment to proceed
+because the outlier fractions were below <span class="katex"><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">−</span><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span></span> and the RNA outputs
+passed strictly.</p>
+<p>That distinction matters. The tiled backend is numerically near-equivalent in
+BF16, not bitwise identical. Different matrix tilings change floating-point
+reduction order. The prediction outputs we inspected agreed within the declared
+tolerance; a tiny number of intermediate trunk elements crossed the harder
+ceiling.</p>
+<h2 id="the-nans-that-were-supposed-to-be-there">The NaNs that were supposed to be there<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#the-nans-that-were-supposed-to-be-there" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The first 1 Mb RNA run looked bad: 105,906,176 outputs were NaN. That exact
+number turned out to be the clue.</p>
+<p>The human RNA head has 768 physical tracks, but only 667 are biological tracks.
+The other 101 are padding used for the model’s track layout. Their metadata
+means are NaN. During the normal output-unscaling step, every position in those
+padding tracks becomes NaN:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="text" data-theme="github-light github-dark"><code data-language="text" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>1,048,576 positions x 101 padding tracks = 105,906,176 expected NaNs</span></span></code></pre></figure>
+<p>Before metadata unscaling, all 805,306,368 head values were finite. After
+unscaling, every value in all 667 biological tracks was finite, and every value
+in the 101 padding tracks was NaN—exactly the metadata-defined pattern.</p>
+<p>This was a useful reminder that <code>isfinite().all()</code> can be a bad test when a
+model has structured padding. The corrected harness checks the official track
+mask and reports biological and padding tracks separately.</p>
+<h2 id="what-ran-on-the-rtx-3090">What ran on the RTX 3090<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#what-ran-on-the-rtx-3090" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>Here is the final measured 1 Mb RNA-head result:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>Measurement</th><th style="text-align:right;">Result</th></tr></thead><tbody><tr><td>Input length</td><td style="text-align:right;">1,048,576 bp</td></tr><tr><td>Transformer length</td><td style="text-align:right;">8,192</td></tr><tr><td>Biological RNA tracks</td><td style="text-align:right;">667</td></tr><tr><td>Finite biological values</td><td style="text-align:right;">699,400,192 / 699,400,192</td></tr><tr><td>Expected padding tracks</td><td style="text-align:right;">101</td></tr><tr><td>Expected padding NaNs</td><td style="text-align:right;">105,906,176 / 105,906,176</td></tr><tr><td>Warmups / repeats</td><td style="text-align:right;">2 / 10</td></tr><tr><td>Median synchronized latency</td><td style="text-align:right;">1.51096 s</td></tr><tr><td>p95 synchronized latency</td><td style="text-align:right;">1.51511 s</td></tr><tr><td>Compilation time</td><td style="text-align:right;">42.50 s</td></tr><tr><td>Sampled peak process VRAM</td><td style="text-align:right;">12,530 MiB</td></tr><tr><td>GPU</td><td style="text-align:right;">NVIDIA GeForce RTX 3090, 24 GiB</td></tr></tbody></table></div>
+<p>JAX’s usual BFC allocator initially failed on a large allocation. The successful
+run used JAX’s experimental <code>address</code> allocator, which talks directly to the
+PJRT allocator; the options and trade-offs are documented in the
+<a href="https://docs.jax.dev/en/latest/gpu_memory_allocation.html" class="external">JAX GPU memory guide<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>.
+Allocator choice did not remove the attention matrices—the tiled kernel did
+that—but it mattered for fitting the remaining large activations into fragmented
+device memory.</p>
+<p>One subtle but important qualification: the compiled benchmark reduces the
+enormous RNA output to finite-count, min, max, mean, and RMS scalars <em>on the
+GPU</em>. It does this so that measuring feasibility does not retain and transfer a
+roughly 700-million-value result to the host. The trunk and RNA head really did
+execute at full context; this is not yet a demonstration of the complete public
+multimodal output API or an end-to-end REF/ALT variant-scoring workflow at 1 Mb.</p>
+<h2 id="has-anyone-else-done-this">Has anyone else done this?<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#has-anyone-else-done-this" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>“AlphaGenome on consumer hardware” covers several different claims. Shorter
+contexts, fewer output heads, framework ports, and frozen-head workflows can all
+reduce the footprint. Those are useful, but they are not the same as preserving
+the full one-million-base context.</p>
+<p>The best public comparison I found is the independent
+<a href="https://genomicsxai.github.io/blogs/2026-005/" class="external">GenomicsXAI GPU benchmark<svg class="external-icon" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a>.
+It reports approximately 34.6—36.1 GB for official JAX and 40.7—40.8 GB for
+the community PyTorch path at 1 Mb. Its 24 GB RTX 6000 completed the PyTorch
+path at 524 kb with 12.5 GB peak memory; the 1 Mb entry is an out-of-memory dash.</p>
+<p>Those measurements are not directly comparable to mine. The GPU models,
+software, allocators, requested outputs, and measurement methods differ, and my
+executable returns scalar summaries instead of the entire output tensor. I
+would not divide the two numbers and announce a universal memory reduction.
+What the comparison does establish is the motivation: public stock-implementation
+benchmarks put 1 Mb outside a 24 GB card, while this specialized RNA-head run
+completed on one.</p>
+<p>FlashAttention is not new, and neither is using it in genomics. The potentially
+new part is adapting exact tiled attention to AlphaGenome’s multi-query layout,
+unequal value width, learned binned pair bias, and soft cap while preserving the
+released checkpoint.</p>
+<p>The careful novelty statement is:</p>
+<blockquote>
+<p>To our knowledge, this is the first publicly documented adaptation of
+AlphaGenome’s learned-bias sequence attention to a FlashAttention-style tiled
+kernel, demonstrating full 1 Mb trunk and RNA-head computation on a 24 GB RTX 3090.</p>
+</blockquote>
+<p>That is a “to our knowledge,” not a claim to have searched every private
+repository or unpublished project. A public code release and independent
+replication would make it much stronger.</p>
+<h2 id="what-this-doesand-does-notmean">What this does—and does not—mean<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#what-this-doesand-does-notmean" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>We did not shrink AlphaGenome. There was no pruning, distillation,
+quantization, smaller checkpoint, shorter crop, or retraining. The optimization
+changes <em>how</em> the same attention equation is evaluated, not what weights or
+context it uses.</p>
+<p>What has been demonstrated:</p>
+<ul>
+<li>the released checkpoint and full 1,048,576 bp context;</li>
+<li>all nine sequence-attention blocks using the tiled custom call;</li>
+<li>the full trunk and RNA prediction head on an RTX 3090;</li>
+<li>finite biological RNA outputs; and</li>
+<li>direct dense comparisons through 524 kb.</li>
+</ul>
+<p>What has not yet been demonstrated:</p>
+<ul>
+<li>a complete 1 Mb dense-versus-tiled comparison on larger hardware;</li>
+<li>transfer of all full-resolution outputs through the ordinary public API;</li>
+<li>every AlphaGenome modality at 1 Mb;</li>
+<li>a complete REF/ALT variant-effect scoring run at 1 Mb;</li>
+<li>backward propagation or fine-tuning with this kernel; or</li>
+<li>support for arbitrary dimensions, masks, tails, or GPUs beyond this tested
+configuration.</li>
+</ul>
+<p>The model is also still quadratic in compute. Tiling removes the quadratic
+attention storage, not the dot products. At longer sequences or larger batches,
+runtime will eventually become the next wall.</p>
+<h2 id="reproducing-the-experiment">Reproducing the experiment<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#reproducing-the-experiment" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The experimental tree keeps the dense backend as the default and enables the
+new path with <code>attention_backend=&quot;pallas_tiled&quot;</code>. The staged 1 Mb harness runs
+four fresh processes: trunk compile preflight, trunk execution, RNA compile
+preflight, and RNA execution. Each stage is guarded by the hashes of the
+shorter-context validation and adjudication reports.</p>
+<p>The key implementation pieces are:</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="text" data-theme="github-light github-dark"><code data-language="text" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>alphagenome_research/model/tiled_attention.py</span></span>
+<span data-line><span>    pure-JAX reference implementation</span></span>
+<span data-line> </span>
+<span data-line><span>alphagenome_research/model/pallas_tiled_attention.py</span></span>
+<span data-line><span>    forward-only 64 x 64 Pallas/Triton kernel</span></span>
+<span data-line> </span>
+<span data-line><span>alphagenome_flash_fyp/scripts/validate_end_to_end.py</span></span>
+<span data-line><span>    dense-versus-tiled validation ladder</span></span>
+<span data-line> </span>
+<span data-line><span>alphagenome_flash_fyp/scripts/run_1mb_staged.sh</span></span>
+<span data-line><span>    guarded full-context experiment</span></span>
+<span data-line> </span>
+<span data-line><span>alphagenome_flash_fyp/results/execution_1mb_rna_prediction_masked.json</span></span>
+<span data-line><span>    primary machine-readable result</span></span></code></pre></figure>
+<p>The experiment used JAX 0.11.0 and included a narrow workaround for that
+version’s missing RTX 3090 name in its Triton GPU registry—the A10 and RTX 3090
+share compute capability 8.6. This is prototype engineering, not a reason to
+fork a compiler forever.</p>
+<h2 id="where-i-would-take-it-next">Where I would take it next<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#where-i-would-take-it-next" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>The most valuable next run is not another synthetic benchmark. It is a
+scorer-specific REF/ALT experiment that performs two full-context predictions
+sequentially and returns a compact biological variant score. That would test the
+workflow people actually care about without requiring the host to hold every
+raw track.</p>
+<p>After that:</p>
+<ol>
+<li>run a direct 1 Mb dense comparison on a 48/80 GB GPU;</li>
+<li>test the remaining output heads and the normal public output wrappers;</li>
+<li>add tail handling and broader GPU coverage;</li>
+<li>profile whether AlphaGenome’s pair row-attention becomes the next bottleneck;</li>
+<li>tune tiles and pipeline stages across Ampere and newer GPUs; and</li>
+<li>investigate a backward kernel only if fine-tuning becomes a real use case.</li>
+</ol>
+<p>The larger lesson is pleasantly mundane. Before changing a model, inspect the
+objects it allocates. My first approach tried to avoid full-context inference by
+making a decision around the model. Profiling showed a better seam: keep the
+model and change the implementation of its worst operation.</p>
+<p>That is what made one million bases fit on the gaming GPU under my desk.</p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div id="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false}"></div><svg version="1.1" id="global-graph-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+	s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+	c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+	C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+	c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+	v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+	s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+	C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+	S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+	s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+	s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></div><div id="global-graph-outer"><div id="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" id="toc" class><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div id="toc-content"><ul class="overflow"><li class="depth-0"><a href="#making-full-context-alphagenome-fit-on-an-rtx-3090" data-for="making-full-context-alphagenome-fit-on-an-rtx-3090">Making Full-Context AlphaGenome Fit on an RTX 3090</a></li><li class="depth-1"><a href="#the-first-idea-was-not-the-best-idea" data-for="the-first-idea-was-not-the-best-idea">The first idea was not the best idea</a></li><li class="depth-1"><a href="#profiling-pointed-at-one-very-large-object" data-for="profiling-pointed-at-one-very-large-object">Profiling pointed at one very large object</a></li><li class="depth-1"><a href="#why-stock-flashattention-was-not-a-drop-in-replacement" data-for="why-stock-flashattention-was-not-a-drop-in-replacement">Why stock FlashAttention was not a drop-in replacement</a></li><li class="depth-1"><a href="#online-softmax-one-block-at-a-time" data-for="online-softmax-one-block-at-a-time">Online softmax, one block at a time</a></li><li class="depth-1"><a href="#correctness-before-the-heroic-run" data-for="correctness-before-the-heroic-run">Correctness before the heroic run</a></li><li class="depth-1"><a href="#the-nans-that-were-supposed-to-be-there" data-for="the-nans-that-were-supposed-to-be-there">The NaNs that were supposed to be there</a></li><li class="depth-1"><a href="#what-ran-on-the-rtx-3090" data-for="what-ran-on-the-rtx-3090">What ran on the RTX 3090</a></li><li class="depth-1"><a href="#has-anyone-else-done-this" data-for="has-anyone-else-done-this">Has anyone else done this?</a></li><li class="depth-1"><a href="#what-this-doesand-does-notmean" data-for="what-this-doesand-does-notmean">What this does—and does not—mean</a></li><li class="depth-1"><a href="#reproducing-the-experiment" data-for="reproducing-the-experiment">Reproducing the experiment</a></li><li class="depth-1"><a href="#where-i-would-take-it-next" data-for="where-i-would-take-it-next">Where I would take it next</a></li></ul></div></div><div class="backlinks"><h3>Backlinks</h3><ul class="overflow"><li><a href="../ai-research/" class="internal">AI Research</a></li><li><a href="../" class="internal">motivating everything</a></li></ul></div></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.2.3</a> © 2026</p><ul><li><a href="https://github.com/twigslot/twigslot.github.io">GitHub</a></li></ul></footer></div></body><script type="application/javascript">function c(){let t=this.parentElement;t.classList.toggle("is-collapsed");let l=t.classList.contains("is-collapsed")?this.scrollHeight:t.scrollHeight;t.style.maxHeight=l+"px";let o=t,e=t.parentElement;for(;e;){if(!e.classList.contains("callout"))return;let n=e.classList.contains("is-collapsed")?e.scrollHeight:e.scrollHeight+o.scrollHeight;e.style.maxHeight=n+"px",o=e,e=e.parentElement}}function i(){let t=document.getElementsByClassName("callout is-collapsible");for(let s of t){let l=s.firstElementChild;if(l){l.addEventListener("click",c),window.addCleanup(()=>l.removeEventListener("click",c));let e=s.classList.contains("is-collapsed")?l.scrollHeight:s.scrollHeight;s.style.maxHeight=e+"px"}}}document.addEventListener("nav",i);window.addEventListener("resize",i);
+</script><script type="module">
+          let mermaidImport = undefined
+          document.addEventListener('nav', async () => {
+            if (document.querySelector("code.mermaid")) {
+              mermaidImport ||= await import('https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.7.0/mermaid.esm.min.mjs')
+              const mermaid = mermaidImport.default
+              const darkMode = document.documentElement.getAttribute('saved-theme') === 'dark'
+              mermaid.initialize({
+                startOnLoad: false,
+                securityLevel: 'loose',
+                theme: darkMode ? 'dark' : 'default'
+              })
+
+              await mermaid.run({
+                querySelector: '.mermaid'
+              })
+            }
+          });
+          </script><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/copy-tex.min.js" type="application/javascript"></script><script src="../postscript.js" type="module"></script></html>

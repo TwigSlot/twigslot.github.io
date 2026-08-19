@@ -18,6 +18,10 @@ title: motivating everything
 - [[fun-with-hardware/2026-02-18-yosys|Yosys: Open-Source RTL Synthesis from the Inside]] (2026-02-18)
 - [[fun-with-hardware/2026-02-17-hene-laser|Helium-Neon Lasers from First Principles]] (2026-02-17)
 
+## AI Research
+
+- [[ai-research/2026-08-19-alphagenome-rtx-3090|Making Full-Context AlphaGenome Fit on an RTX 3090]] (2026-08-19)
+
 ## Misc
 
 - [[misc/2026-02-17-cpp26-reflection|C++26 Static Reflection: What P2996 Actually Gives Us]] (2026-02-17)
